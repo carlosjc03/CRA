@@ -48,7 +48,7 @@ tablero_inicial([
 ]).
 
 
-%jugadores iniciales con su nombre, posición inicial, dinero inicial y propiedades iniciales (vacías)
+% jugadores iniciales con su nombre, posición inicial, dinero inicial y propiedades iniciales (vacías)
 jugadores_iniciales([
     jugador(jugador1, 0, 1500, []),
     jugador(jugador2, 0, 1500, []),
@@ -56,9 +56,35 @@ jugadores_iniciales([
 ]).
 
 
-%estado_inicial con la lista de jugadores, el tablero y el jugador inicial (jugador1).
+% estado_inicial con la lista de jugadores, el tablero y el jugador inicial (jugador1).
 % Lo agrupamos en un estado para facilitar su manejo en el juego, y asi evitamos tener 
 % un montón de variables al movernos por el tablero y avanzar turnos.
 estado_inicial(estado(Jugadores, Tablero, jugador1)) :-
     jugadores_iniciales(Jugadores),
     tablero_inicial(Tablero).
+
+% Simulación de dados: El enunciado prohíbe usar generadores aleatorios externos.
+% Definimos una lista estática de ejemplo con las tiradas para simular la partida turno a turno.
+dados_partida([6,1,5,3,4,2]).
+
+% mover_jugador(JugadorActual, ValorDado, JugadorActualizado)
+% Caso A: Movimiento normal (No pasa por la Salida).
+% La nueva posición es menor a 40. El dinero y las propiedades no cambian.
+mover_jugador(jugador(Nombre, Pos, Dinero, Props), Dado, jugador(Nombre, NuevaPos, Dinero, Props)) :-
+    Suma is Pos + Dado,
+    Suma < 40,
+    NuevaPos is Suma.
+
+% Caso B: Paso por la Salida (La suma es 40 o mayor).
+% Aplicamos módulo 40 para dar la vuelta y sumamos 200 al dinero.
+mover_jugador(jugador(Nombre, Pos, Dinero, Props), Dado, jugador(Nombre, NuevaPos, NuevoDinero, Props)) :-
+    Suma is Pos + Dado,
+    Suma >= 40,
+    NuevaPos is Suma mod 40,      % Control circular de la posición
+    NuevoDinero is Dinero + 200.  % Gestión del paso por salida (Bono de 200)
+
+% ejecutar_movimiento(JugadorActual, ListaDados, JugadorActualizado, DadosRestantes)
+% Toma el primer dado de la lista (DadoActual) para mover al jugador, 
+% y devuelve la lista de dados sobrantes (DadosRestantes) para el siguiente turno.
+ejecutar_movimiento(JugadorActual, [DadoActual | DadosRestantes], JugadorActualizado, DadosRestantes) :-
+    mover_jugador(JugadorActual, DadoActual, JugadorActualizado).
