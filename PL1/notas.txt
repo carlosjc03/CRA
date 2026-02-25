@@ -1,0 +1,3 @@
+tablero_inicial(T), length(T, Longitud). --> para ver la longitud del tablero_inicial (en este caso 40)
+estado_inicial(E). --> para ver el estado_inicial
+jugadores_iniciales(J). --> para ver todos los jugadores (inicialmente) antes de la primera ronda

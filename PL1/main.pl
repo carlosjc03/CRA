@@ -56,19 +56,18 @@ jugadores_iniciales([
 ]).
 
 
-% estado_inicial con la lista de jugadores, el tablero y el jugador inicial (jugador1).
+% estado_inicial con la lista de jugadores, el tablero y el jugador al que le toca tirar.
 % Lo agrupamos en un estado para facilitar su manejo en el juego, y asi evitamos tener 
 % un montón de variables al movernos por el tablero y avanzar turnos.
 estado_inicial(estado(Jugadores, Tablero, jugador1)) :-
     jugadores_iniciales(Jugadores),
     tablero_inicial(Tablero).
 
-% Simulación de dados: El enunciado prohíbe usar generadores aleatorios externos.
-% Definimos una lista estática de ejemplo con las tiradas para simular la partida turno a turno.
+% Simulación de dados. Creamos una lista de ejemplo con las tiradas para simular la partida turno a turno.
 dados_partida([6,1,5,3,4,2]).
 
 % mover_jugador(JugadorActual, ValorDado, JugadorActualizado)
-% Caso A: Movimiento normal (No pasa por la Salida).
+% Caso A: Movimiento normal (No damos una vuelta entera y no pasamos por la Salida).
 % La nueva posición es menor a 40. El dinero y las propiedades no cambian.
 mover_jugador(jugador(Nombre, Pos, Dinero, Props), Dado, jugador(Nombre, NuevaPos, Dinero, Props)) :-
     Suma is Pos + Dado,
