@@ -59,12 +59,15 @@ jugadores_iniciales([
 % estado_inicial con la lista de jugadores, el tablero y el jugador al que le toca tirar.
 % Lo agrupamos en un estado para facilitar su manejo en el juego, y asi evitamos tener 
 % un montón de variables al movernos por el tablero y avanzar turnos.
-estado_inicial(estado(Jugadores, Tablero, jugador1)) :-
+estado_inicial(estado(Jugadores, Tablero, jugador1, 1)) :-
     jugadores_iniciales(Jugadores),
     tablero_inicial(Tablero).
 
-% Simulación de dados. Creamos una lista de ejemplo con las tiradas para simular la partida turno a turno.
-dados_partida([6,1,5,3,4,2]).
+% tirar_dado(NumTurno, DadoGenerado)
+% Genera un número pseudoaleatorio entre 2 y 12.
+tirar_dado(NumTurno, Dado) :-
+    ValorPseudo is (NumTurno * 73) + 19, 
+    Dado is (ValorPseudo mod 11) + 2.
 
 % mover_jugador(JugadorActual, ValorDado, JugadorActualizado)
 % Caso A: Movimiento normal (No damos una vuelta entera y no pasamos por la Salida).
@@ -82,8 +85,8 @@ mover_jugador(jugador(Nombre, Pos, Dinero, Props), Dado, jugador(Nombre, NuevaPo
     NuevaPos is Suma mod 40,      % Control circular de la posición
     NuevoDinero is Dinero + 200.  % Gestión del paso por salida (Bono de 200)
 
-% ejecutar_movimiento(JugadorActual, ListaDados, JugadorActualizado, DadosRestantes)
+% ejecutar_movimiento(JugadorActual, NumTurno, JugadorActualizado, DadoSacado)
 % Toma el primer dado de la lista (DadoActual) para mover al jugador, 
-% y devuelve la lista de dados sobrantes (DadosRestantes) para el siguiente turno.
-ejecutar_movimiento(JugadorActual, [DadoActual | DadosRestantes], JugadorActualizado, DadosRestantes) :-
-    mover_jugador(JugadorActual, DadoActual, JugadorActualizado).
+ejecutar_movimiento(JugadorActual, NumTurno, JugadorActualizado, DadoSacado) :-
+    tirar_dado(NumTurno, DadoSacado),                               % 1. Calcula el dado matemáticamente
+    mover_jugador(JugadorActual, DadoSacado, JugadorActualizado).   % 2. Mueve al jugador
