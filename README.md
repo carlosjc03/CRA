@@ -1,3 +1,9 @@
+# Probar archivos de main y test
+- Para el main, ejecuta el comando **estado_inicial(E0), bucle_juego(E0, 15).**, donde E0 es el **estado inicial** y 15 es el **número de turnos que quieres ejecutar**
+- Para el test (que basicamente seria lo mismo pero con diferente número de turnos y sin que se imprima E0 al final) ejecuta el comando **test_todos.**
+- *Nota: antes de ejecutarlo en ambos, importa el archivo correspondiente con el botón de Consult*
+
+
 # CRA - Prácticas de CRA
 1. Escribir el código
 
