@@ -23,9 +23,9 @@ test_ronda_completa :-
 % Como en el turno 1 el dado saca un 6, acabara en la casilla 2 con 1700 de dinero.
 test_paso_salida :-
     tablero_inicial(Tablero),
-    % Estado forzado para la prueba
+    % Estado forzado para la prueba (Ajustado a tus 2 jugadores)
     EstadoPrueba = estado(
-        [jugador(jugador1, 36, 1500, []), jugador(jugador2, 0, 1500, []), jugador(jugador3, 0, 1500, [])],
+        [jugador(jugador1, 36, 1500, []), jugador(jugador2, 0, 1500, [])],
         Tablero,
         jugador1,
         1 % Reloj en 1 para forzar la tirada inicial

@@ -1,3 +1,4 @@
+:- consult('regla.pl').
 % 1.- TABLERO, JUGADORES INICIALES Y ESTADO INICIAL
 % tablero_inicial con 40 casillas donde cada casilla corresponde a una propiedad, servicio, impuesto o casilla especial
 tablero_inicial([
@@ -106,13 +107,17 @@ jugar_turno(estado(Jugadores, Tablero, TurnoActual, NumTurno), Dado, estado(Nuev
     % B. Ejecutamos el movimiento (esto tira el dado matemáticamente y guarda el valor en 'Dado')
     ejecutar_movimiento(JugadorFisico, NumTurno, JugadorMovido, Dado),
     
-    % C. Actualizamos la lista grabando la nueva posición del jugador
-    actualizar_lista_jugadores(Jugadores, JugadorMovido, NuevosJugadores),
-    
-    % D. Pasamos el turno al siguiente jugador
+    % C. Miramos en qué casilla física ha caído
+    JugadorMovido = jugador(_, NuevaPos, _, _),
+    nth0(NuevaPos, Tablero, CasillaActual),
+
+	% D. Aplicamos reglas de economía desde regla.pl
+    interactuar_con_casilla(JugadorMovido, CasillaActual, Jugadores, _JugadorFinal, NuevosJugadores),
+
+    % E. Pasamos el turno al siguiente jugador
     siguiente_turno(TurnoActual, SiguienteJugador),
     
-    % E. Sumamos 1 al reloj de la partida
+    % F. Sumamos 1 al reloj de la partida
     NuevoNumTurno is NumTurno + 1.
 
 
