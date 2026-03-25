@@ -1,3 +1,157 @@
-tablero_inicial(T), length(T, Longitud). --> para ver la longitud del tablero_inicial (en este caso 40)
-estado_inicial(E). --> para ver el estado_inicial
-jugadores_iniciales(J). --> para ver todos los jugadores (inicialmente) antes de la primera ronda
+Resultados tests:
+- Se tardan 95 turnos en pisar todas las casillas del tablero (entre los 2 jugadores)
+
+
+- El jugador 1 tarda 143 turnos en pisar las 40 casillas del tablero
+- El jugador 2 tarda 204 turnos en pisar las 40 casillas del tablero 
+--> es decir para que los 2 jugadores pisen todas las casillas individualmente se tardan 204 turnos
+
+
+---JUGADOR 1 40 CASILLAS---
+
+Para 143 turnos (jugador 1 pisando todas las casillas del tablero), la distribucion de dados es la siguiente:
+*Nota: en este turno el jugador 2 ha pisado 37 casillas, las que le quedan por pisar son: celeste2, naranja3, carta(4)
+
+   Valor 2 -> jugador1: 6 veces | jugador2: 7 veces
+   Valor 3 -> jugador1: 6 veces | jugador2: 7 veces
+   Valor 4 -> jugador1: 7 veces | jugador2: 6 veces
+   Valor 5 -> jugador1: 6 veces | jugador2: 7 veces
+   Valor 6 -> jugador1: 7 veces | jugador2: 6 veces
+   Valor 7 -> jugador1: 7 veces | jugador2: 6 veces
+   Valor 8 -> jugador1: 6 veces | jugador2: 7 veces
+   Valor 9 -> jugador1: 7 veces | jugador2: 6 veces
+   Valor 10 -> jugador1: 7 veces | jugador2: 6 veces
+   Valor 11 -> jugador1: 6 veces | jugador2: 7 veces
+   Valor 12 -> jugador1: 7 veces | jugador2: 6 veces
+
+   -->Vemos que el dado 'trata' a los numeros por igual, es decir, tenemos un dado justo (sigue distribucion uniforme), que no favorece a un
+      determinado número.
+      Aunque realmente no es demasiado real ya que las probabilidades de sacar 12 (dos dados de 6) es de 1/36 = 2.7%, mientras que 
+      la de sacar un 7 es de 6/36 ~= 17% (16.67) si seguimos la formula habitual de casos favorables/casos posibles
+
+
+ MAPA DE CALOR (VISITAS POR CASILLA):
+   - [Casilla 0] salida -> jugador1: 3 veces | jugador2: 1 veces
+   - [Casilla 1] marron1 -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 2] carta -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 3] marron2 -> jugador1: 3 veces | jugador2: 1 veces
+   - [Casilla 4] impuesto -> jugador1: 1 veces | jugador2: 3 veces
+   - [Casilla 5] sur -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 6] celeste1 -> jugador1: 3 veces | jugador2: 1 veces
+   - [Casilla 7] carta -> jugador1: 1 veces | jugador2: 3 veces
+   - [Casilla 8] celeste2 -> jugador1: 2 veces | jugador2: 0 veces
+   - [Casilla 9] celeste3 -> jugador1: 3 veces | jugador2: 3 veces
+   - [Casilla 10] carcel_visita -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 11] rosa1 -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 12] electricidad -> jugador1: 3 veces | jugador2: 3 veces
+   - [Casilla 13] rosa2 -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 14] rosa3 -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 15] oeste -> jugador1: 3 veces | jugador2: 2 veces
+   - [Casilla 16] naranja1 -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 17] carta -> jugador1: 1 veces | jugador2: 3 veces
+   - [Casilla 18] naranja2 -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 19] naranja3 -> jugador1: 2 veces | jugador2: 0 veces
+   - [Casilla 20] parking -> jugador1: 2 veces | jugador2: 4 veces
+   - [Casilla 21] rojo1 -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 22] carta -> jugador1: 3 veces | jugador2: 0 veces
+   - [Casilla 23] rojo2 -> jugador1: 2 veces | jugador2: 3 veces
+   - [Casilla 24] rojo3 -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 25] norte -> jugador1: 3 veces | jugador2: 1 veces
+   - [Casilla 26] amarillo1 -> jugador1: 1 veces | jugador2: 3 veces
+   - [Casilla 27] amarillo2 -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 28] agua -> jugador1: 4 veces | jugador2: 3 veces
+   - [Casilla 29] amarillo3 -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 30] ir_a_carcel -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 31] verde1 -> jugador1: 4 veces | jugador2: 3 veces
+   - [Casilla 32] verde2 -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 33] carta -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 34] verde3 -> jugador1: 3 veces | jugador2: 3 veces
+   - [Casilla 35] este -> jugador1: 2 veces | jugador2: 3 veces
+   - [Casilla 36] carta -> jugador1: 1 veces | jugador2: 1 veces
+   - [Casilla 37] azul1 -> jugador1: 3 veces | jugador2: 2 veces
+   - [Casilla 38] impuesto -> jugador1: 2 veces | jugador2: 2 veces
+   - [Casilla 39] azul2 -> jugador1: 1 veces | jugador2: 1 veces
+
+
+---JUGADOR 2 40 CASILLAS---
+
+Para 204 turnos (jugador 2 pisando todas las casillas del tablero), la distribucion de dados es la siguiente:
+   
+   Valor 2 -> jugador1: 9 veces | jugador2: 10 veces
+   Valor 3 -> jugador1: 9 veces | jugador2: 9 veces
+   Valor 4 -> jugador1: 9 veces | jugador2: 9 veces
+   Valor 5 -> jugador1: 9 veces | jugador2: 10 veces
+   Valor 6 -> jugador1: 10 veces | jugador2: 9 veces
+   Valor 7 -> jugador1: 9 veces | jugador2: 9 veces
+   Valor 8 -> jugador1: 9 veces | jugador2: 10 veces
+   Valor 9 -> jugador1: 10 veces | jugador2: 9 veces
+   Valor 10 -> jugador1: 9 veces | jugador2: 9 veces
+   Valor 11 -> jugador1: 9 veces | jugador2: 9 veces
+   Valor 12 -> jugador1: 10 veces | jugador2: 9 veces
+
+-->Vemos que el dado 'trata' a los numeros por igual, es decir, tenemos un dado justo (sigue distribucion uniforme), que no favorece a un
+    determinado número.
+   
+   Aunque realmente no es demasiado real ya que las probabilidades de sacar 12 (dos dados de 6) es de 1/36 = 2.7%, mientras que 
+   la de sacar un 7 es de 6/36 ~= 17% (16.67) si seguimos la formula habitual de casos favorables/casos posibles
+
+> MAPA DE CALOR (VISITAS POR CASILLA):
+   - [Casilla 0] salida -> jugador1: 4 veces | jugador2: 3 veces
+   - [Casilla 1] marron1 -> jugador1: 1 veces | jugador2: 3 veces
+   - [Casilla 2] carta -> jugador1: 2 veces | jugador2: 2 veces
+   - [Casilla 3] marron2 -> jugador1: 4 veces | jugador2: 3 veces
+   - [Casilla 4] impuesto -> jugador1: 1 veces | jugador2: 3 veces
+   - [Casilla 5] sur -> jugador1: 2 veces | jugador2: 1 veces
+   - [Casilla 6] celeste1 -> jugador1: 3 veces | jugador2: 3 veces
+   - [Casilla 7] carta -> jugador1: 2 veces | jugador2: 3 veces
+   - [Casilla 8] celeste2 -> jugador1: 2 veces | jugador2: 1 veces
+   - [Casilla 9] celeste3 -> jugador1: 3 veces | jugador2: 3 veces
+   - [Casilla 10] carcel_visita -> jugador1: 2 veces | jugador2: 1 veces
+   - [Casilla 11] rosa1 -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 12] electricidad -> jugador1: 4 veces | jugador2: 4 veces
+   - [Casilla 13] rosa2 -> jugador1: 3 veces | jugador2: 1 veces
+   - [Casilla 14] rosa3 -> jugador1: 3 veces | jugador2: 2 veces
+   - [Casilla 15] oeste -> jugador1: 3 veces | jugador2: 3 veces
+   - [Casilla 16] naranja1 -> jugador1: 2 veces | jugador2: 2 veces
+   - [Casilla 17] carta -> jugador1: 3 veces | jugador2: 3 veces
+   - [Casilla 18] naranja2 -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 19] naranja3 -> jugador1: 3 veces | jugador2: 1 veces
+   - [Casilla 20] parking -> jugador1: 2 veces | jugador2: 4 veces
+   - [Casilla 21] rojo1 -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 22] carta -> jugador1: 4 veces | jugador2: 2 veces
+   - [Casilla 23] rojo2 -> jugador1: 2 veces | jugador2: 4 veces
+   - [Casilla 24] rojo3 -> jugador1: 2 veces | jugador2: 2 veces
+   - [Casilla 25] norte -> jugador1: 4 veces | jugador2: 3 veces
+   - [Casilla 26] amarillo1 -> jugador1: 3 veces | jugador2: 4 veces
+   - [Casilla 27] amarillo2 -> jugador1: 2 veces | jugador2: 1 veces
+   - [Casilla 28] agua -> jugador1: 5 veces | jugador2: 4 veces
+   - [Casilla 29] amarillo3 -> jugador1: 2 veces | jugador2: 3 veces
+   - [Casilla 30] ir_a_carcel -> jugador1: 2 veces | jugador2: 1 veces
+   - [Casilla 31] verde1 -> jugador1: 6 veces | jugador2: 4 veces
+   - [Casilla 32] verde2 -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 33] carta -> jugador1: 1 veces | jugador2: 2 veces
+   - [Casilla 34] verde3 -> jugador1: 4 veces | jugador2: 4 veces
+   - [Casilla 35] este -> jugador1: 2 veces | jugador2: 4 veces
+   - [Casilla 36] carta -> jugador1: 2 veces | jugador2: 2 veces
+   - [Casilla 37] azul1 -> jugador1: 3 veces | jugador2: 3 veces
+   - [Casilla 38] impuesto -> jugador1: 2 veces | jugador2: 3 veces
+   - [Casilla 39] azul2 -> jugador1: 3 veces | jugador2: 2 veces
+
+
+
+
+
+
+
+
+
+(Test completo para cuando el jugador 1 pisa las 40 casillas --> 143 turnos)
+>> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 3913
+   jugador2 -> Patrimonio total: 1122
+
+
+(Test completo para cuando el jugador 2 pisa las 40 casillas --> 204 turnos)
+RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 5383
+   jugador2 -> Patrimonio total: 1952

@@ -4,6 +4,7 @@
 % ==========================================
 
 :- consult('regla.pl').
+:- consult('metricas.pl'). 
 
 % 1.- TABLERO Y JUGADORES
 tablero_inicial([
@@ -22,38 +23,48 @@ tablero_inicial([
 ]).
 
 jugadores_iniciales([
-    jugador(jugador1, 0, 1500, []), jugador(jugador2, 0, 1500, [])
+    jugador(jugador1, 0, 1500, []), 
+    jugador(jugador2, 0, 1500, [])
 ]).
 
 estado_inicial(estado(Jugadores, Tablero, jugador1, 1)) :-
-    jugadores_iniciales(Jugadores), tablero_inicial(Tablero).
+    jugadores_iniciales(Jugadores), 
+    tablero_inicial(Tablero).
 
 % 2.- MOVIMIENTO Y DADO
 tirar_dado(NumTurno, Dado) :-
     ValorPseudo is (NumTurno * 73) + 19, Dado is (ValorPseudo mod 11) + 2.
 
-mover_jugador(jugador(Nombre, Pos, Dinero, Props), Dado,jugador(Nombre, NuevaPos, Dinero, Props)) :-
+mover_jugador(jugador(Nombre, Pos, Dinero, Props), Dado, jugador(Nombre, NuevaPos, Dinero, Props)) :-
     Suma is Pos + Dado, Suma < 40, NuevaPos is Suma.
 mover_jugador(jugador(Nombre, Pos, Dinero, Props), Dado, jugador(Nombre, NuevaPos, NuevoDinero, Props)) :-
     Suma is Pos + Dado, Suma >= 40, NuevaPos is Suma mod 40, NuevoDinero is Dinero + 200.  
 
 ejecutar_movimiento(JugadorActual, NumTurno, JugadorActualizado, DadoSacado) :-
-    tirar_dado(NumTurno, DadoSacado), mover_jugador(JugadorActual, DadoSacado, JugadorActualizado). 
+    tirar_dado(NumTurno, DadoSacado), 
+    mover_jugador(JugadorActual, DadoSacado, JugadorActualizado). 
 
-% 3.- MEMORIA Y LISTAS
-siguiente_turno(jugador1, jugador2).
-siguiente_turno(jugador2, jugador1). %siguiente_turno(jugador2, jugador3).
-%siguiente_turno(jugador3, jugador1).
-
+% 3.- MEMORIA Y LISTAS 
 buscar_jugador([jugador(Nombre, Pos, Dinero, Props) | _], Nombre, jugador(Nombre, Pos, Dinero, Props)) :- !.
 buscar_jugador([_ | Resto], Nombre, J) :- buscar_jugador(Resto, Nombre, J).
 
 actualizar_lista_jugadores([jugador(Nombre, _, _, _) | Resto], jugador(Nombre, Pos, Dinero, Props), [jugador(Nombre, Pos, Dinero, Props ) | Resto]) :- !.
 actualizar_lista_jugadores([J | Resto], JugadorActualizado, [J | NuevaLista]) :- actualizar_lista_jugadores(Resto, JugadorActualizado, NuevaLista).
 
+siguiente_en_lista(Actual, Lista, Siguiente) :-
+    append(_, [jugador(Actual,_,_,_) | Resto], Lista),
+    ( Resto = [jugador(Siguiente,_,_,_) | _] -> true
+    ; Lista = [jugador(Siguiente,_,_,_) | _] ).
+
+asegurar_turno(SiguienteIdeal, NuevosJugadores, SiguienteIdeal) :-
+    buscar_jugador(NuevosJugadores, SiguienteIdeal, _), !.
+asegurar_turno(_, [jugador(Primero,_,_,_) | _], Primero).
+
 % 4.- EL BUCLE PRINCIPAL 
-jugar_turno(estado(Jugadores, Tablero, TurnoActual, NumTurno), Dado, Modo, estado(NuevosJugadores, Tablero, SiguienteJugador, NuevoNumTurno)) :-
+jugar_turno(estado(Jugadores, Tablero, TurnoActual, NumTurno), Dado, Modo, estado(NuevosJugadores, Tablero, SiguienteReal, NuevoNumTurno)) :-
     buscar_jugador(Jugadores, TurnoActual, JugadorFisico),
+    siguiente_en_lista(TurnoActual, Jugadores, SiguienteIdeal), 
+    
     ejecutar_movimiento(JugadorFisico, NumTurno, JugadorMovido, Dado),
     
     JugadorMovido = jugador(_, NuevaPos, _, _),
@@ -62,63 +73,88 @@ jugar_turno(estado(Jugadores, Tablero, TurnoActual, NumTurno), Dado, Modo, estad
     interactuar_con_casilla(JugadorMovido, CasillaActual, Jugadores, NumTurno, Modo, JugadorTrasEco, JugadoresTemp),
     aplicar_bancarrota(JugadorTrasEco, Tablero, JugadoresTemp, NuevosJugadores),
 
-    siguiente_turno(TurnoActual, SiguienteJugador), NuevoNumTurno is NumTurno + 1.
+    asegurar_turno(SiguienteIdeal, NuevosJugadores, SiguienteReal), 
+    NuevoNumTurno is NumTurno + 1.
 
-% 5.- INTERFAZ VISUAL CRONOLOGICA
-turno_limpio(EstadoAntes, EstadoDespues, Modo) :-
+% 5.- INTERFAZ VISUAL Y EXTRACCION DE EVENTOS PARA METRICAS
+turno_limpio(EstadoAntes, EstadoDespues, Modo, EventosDelTurno) :-
     EstadoAntes = estado(JugadoresAntes, Tablero, QuienMueve, NTurnos),
     buscar_jugador(JugadoresAntes, QuienMueve, JugadorActual),
-    JugadorActual = jugador(_, PosAntes, DinAntes, PropsAntes),
+    JugadorActual = jugador(_, _PosAntes, _DinAntes, PropsAntes),
     
     write('=================================================='), nl,
     write('TURNO DE: '), write(QuienMueve), write(' (Tirada Global: '), write(NTurnos), write(')'), nl,
     
-    write('--- 1. ESTADO INICIAL ---'), nl,
-    write('Posicion: '), write(PosAntes), write(' | Dinero: '), write(DinAntes), nl,
-    write('Propiedades: '), write(PropsAntes), nl,
-    
     ejecutar_movimiento(JugadorActual, NTurnos, JugadorMovido, Dado),
     JugadorMovido = jugador(_, NuevaPos, _, _),
-    nth0(NuevaPos, Tablero, NombreCasilla),
+    nth0(NuevaPos, Tablero, CasillaActual),
+    extraer_nombre(CasillaActual, NombreSimple),
     
-    write('--- 2. ACCION ---'), nl,
-    write('Tira el dado y saca: '), write(Dado), nl,
-    write('Avanza a la casilla: '), write(NombreCasilla), write(' (Posicion '), write(NuevaPos), write(')'), nl,
+    write('--- ACCION ---'), nl,
+    write('Saca un: '), write(Dado), write(' -> Cae en: '), write(NombreSimple), nl,
     
-    write('--- 3. EFECTO ---'), nl,
     jugar_turno(EstadoAntes, _, Modo, EstadoDespues),
     
     EstadoDespues = estado(NuevosJugadores, _, SiguienteTurno, _),
-    
-    write('--- 4. ESTADO FINAL ---'), nl,
-    (buscar_jugador(NuevosJugadores, QuienMueve, jugador(_, _, DinFin, PropsFin)) ->
-        write('Dinero resultante: '), write(DinFin), nl,
-        write('Propiedades: '), write(PropsFin), nl
+    ( buscar_jugador(NuevosJugadores, QuienMueve, jugador(_, _, _, PropsNuevas)),
+      length(PropsNuevas, L1), length(PropsAntes, L2), L1 > L2 ->
+        PropsNuevas = [PropComprada | _],
+        EventoCompra = [evento_compra(QuienMueve, PropComprada)]
     ;
-        write('Jugador fuera de la partida.'), nl
+        EventoCompra = []
     ),
-    write('Siguiente en jugar: '), write(SiguienteTurno), nl,
+    
+% AQUI ESTA EL CAMBIO: Guardamos 'NuevaPos' en lugar de 'NombreSimple'
+    append([evento_dado(QuienMueve, Dado), evento_visita(QuienMueve, NuevaPos)], EventoCompra, EventosDelTurno),
+    
+    write('--- ESTADO FINAL ---'), nl,
+    (buscar_jugador(NuevosJugadores, QuienMueve, jugador(_, _, DinFin, _PropsFin)) ->
+        write('Dinero: '), write(DinFin), nl,
+        write('Siguiente en jugar: '), write(SiguienteTurno), nl
+    ;
+        write('Siguiente en jugar: '), write(SiguienteTurno), nl
+    ),
     write('=================================================='), nl, nl.
+
 % ==========================================
-% 6.- MODOS DE EJECUCION
+% 6.- MODOS DE EJECUCION Y FIN DE JUEGO
 % ==========================================
 
-% SIMULACION AUTOMATICA
-bucle_juego(_, 0) :- write('[FIN] Simulacion terminada.'), nl.
-bucle_juego(EstadoActual, TurnosRestantes) :-
+bucle_juego(EstadoActual, _, Historial) :-
+    EstadoActual = estado(Jugadores, _, _, _),
+    length(Jugadores, 1), !, 
+    Jugadores = [jugador(Ganador, _, _, _)],
+    write('FIN DEL JUEGO: Solo queda un jugador en pie.'), nl,
+    write('EL GANADOR ES: '), write(Ganador), nl,
+    mostrar_metricas(EstadoActual, Historial).
+
+bucle_juego(EstadoActual, 0, Historial) :- 
+    !,
+    write('Limite de turnos de simulacion alcanzado.'), nl,
+    mostrar_metricas(EstadoActual, Historial).
+
+bucle_juego(EstadoActual, TurnosRestantes, HistorialActual) :-
     TurnosRestantes > 0,
-    turno_limpio(EstadoActual, EstadoSiguiente, simulacion),
+    turno_limpio(EstadoActual, EstadoSiguiente, simulacion, EventosNuevos),
+    append(HistorialActual, EventosNuevos, HistorialActualizado),
     NuevosTurnosRestantes is TurnosRestantes - 1,
-    bucle_juego(EstadoSiguiente, NuevosTurnosRestantes).
+    bucle_juego(EstadoSiguiente, NuevosTurnosRestantes, HistorialActualizado).
 
-% MODO MANUAL INTERACTIVO
 jugar :-
     write('Iniciando partida interactiva manual...'), nl,
     estado_inicial(E0),
-    bucle_manual(E0).
+    bucle_manual(E0, []).
 
-bucle_manual(EstadoActual) :-
-    turno_limpio(EstadoActual, EstadoSiguiente, manual),
-    write('>> Escribe "s." para siguiente turno, o "n." para salir: '),
-    read(Respuesta),
-    (Respuesta == s -> bucle_manual(EstadoSiguiente) ; write('Partida finalizada por el usuario.'), nl).
+bucle_manual(EstadoActual, HistorialActual) :-
+    EstadoActual = estado(Jugadores, _, _, _),
+    (length(Jugadores, 1) ->
+        Jugadores = [jugador(Ganador, _, _, _)],
+        write('EL GANADOR ES: '), write(Ganador), nl,
+        mostrar_metricas(EstadoActual, HistorialActual)
+    ;
+        turno_limpio(EstadoActual, EstadoSiguiente, manual, EventosNuevos),
+        append(HistorialActual, EventosNuevos, HistorialActualizado),
+        write('>> Escribe "s." para siguiente turno, o "n." para salir: '),
+        read(Respuesta),
+        (Respuesta == s -> bucle_manual(EstadoSiguiente, HistorialActualizado) ; write('Partida finalizada.'), nl)
+    ).

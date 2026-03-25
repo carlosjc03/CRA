@@ -1,3 +1,7 @@
+% ==========================================
+% Archivo: regla.pl
+% Descripcion: Motor economico y reglas especiales del juego.
+% ==========================================
 
 % -------------------------------------------------------------------
 % REGLA 1.A: PAGO DE ALQUILER (Propiedades y Monopolio)
@@ -11,7 +15,7 @@ interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, Color), Jugadores, 
     Dueno = jugador(NomDueno, PosD, DineroD, PropsD),
     ( verificar_monopolio(Dueno, Color) ->
         Alquiler is Precio // 2,
-        write('[ALQUILER MONOPOLIO] -> El dueno tiene todas las casillas de color '), write(Color), nl
+        write('[ALQUILER MONOPOLIO] -> El dueno tiene el grupo de color '), write(Color), nl
     ;
         Alquiler is Precio // 10
     ),
@@ -44,7 +48,7 @@ interactuar_con_casilla(Visitante, estacion(IdEstacion, Precio), Jugadores, _Tur
     write('[REGLA 1 - ESTACION] -> '), write(NomV), write(' paga '), write(Alquiler), write(' a '), write(NomDueno), nl.
 
 % -------------------------------------------------------------------
-% REGLA 0.A: COMPRA PROPIEDADES (MODO MANUAL - PREGUNTA)
+% REGLA 0.A: COMPRA PROPIEDADES (MODO MANUAL)
 % -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _TurnoGlobal, manual, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, PosV, DinV, PropsV),
@@ -64,7 +68,7 @@ interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _Tur
     ).
 
 % -------------------------------------------------------------------
-% REGLA 0.B: COMPRA PROPIEDADES (MODO SIMULACION - AUTOMATICO)
+% REGLA 0.B: COMPRA PROPIEDADES (MODO SIMULACION)
 % -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _TurnoGlobal, simulacion, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, PosV, DinV, PropsV),
@@ -75,7 +79,7 @@ interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _Tur
     write('[REGLA 0 - COMPRA AUTO] -> '), write(NomV), write(' adquiere '), write(IdProp), write(' por '), write(Precio), nl.
 
 % -------------------------------------------------------------------
-% REGLA 0.C: COMPRA ESTACIONES (MODO MANUAL - PREGUNTA)
+% REGLA 0.C: COMPRA ESTACIONES (MODO MANUAL)
 % -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, estacion(IdEstacion, Precio), Jugadores, _TurnoGlobal, manual, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, PosV, DinV, PropsV),
@@ -95,7 +99,7 @@ interactuar_con_casilla(Visitante, estacion(IdEstacion, Precio), Jugadores, _Tur
     ).
 
 % -------------------------------------------------------------------
-% REGLA 0.D: COMPRA ESTACIONES (MODO SIMULACION - AUTOMATICO)
+% REGLA 0.D: COMPRA ESTACIONES (MODO SIMULACION)
 % -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, estacion(IdEstacion, Precio), Jugadores, _TurnoGlobal, simulacion, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, PosV, DinV, PropsV),
@@ -117,27 +121,27 @@ interactuar_con_casilla(Visitante, impuesto(Cantidad), Jugadores, _TurnoGlobal, 
     write('[IMPUESTOS] -> '), write(NomV), write(' paga '), write(Cantidad), write(' a la banca.'), nl.
 
 % -------------------------------------------------------------------
-% REGLA 5: IR A LA CARCEL (Teletransporte + Fianza)
+% REGLA 5: IR A LA CARCEL 
 % -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, ir_a_carcel, Jugadores, _TurnoGlobal, _Modo, VisitanteFinal, JugadoresFinales) :-
     !, 
     Visitante = jugador(NomV, _, DinV, PropsV),
-    NuevoDinV is DinV - 500,
+    NuevoDinV is DinV - 50,
     VisitanteFinal = jugador(NomV, 10, NuevoDinV, PropsV), 
     actualizar_lista_jugadores(Jugadores, VisitanteFinal, JugadoresFinales),
-    write('[CARCEL] -> '), write(NomV), write(' cae en Ir a la Carcel. Paga fianza de 500 y es trasladado a la casilla 10.'), nl.
+    write('[CARCEL] -> '), write(NomV), write(' cae en Ir a la Carcel. Paga fianza de 50 y va a la casilla 10.'), nl.
 
 % -------------------------------------------------------------------
-% REGLA 6: CARTAS (4 Resultados posibles)
+% REGLA 6: CARTAS 
 % -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, carta, Jugadores, TurnoGlobal, _Modo, VisitanteFinal, JugadoresFinales) :-
     !,
     Visitante = jugador(NomV, PosV, DinV, PropsV),
     ValorCarta is (TurnoGlobal * 47 + PosV * 11) mod 4,
-    (ValorCarta =:= 0 -> Premio = 100, write('[CARTA] -> Error bancario a tu favor. '), write(NomV), write(' cobra 100.'), nl
-    ; ValorCarta =:= 1 -> Premio = -50, write('[CARTA] -> Multa de trafico. '), write(NomV), write(' paga 50.'), nl
-    ; ValorCarta =:= 2 -> Premio = 50, write('[CARTA] -> Premio de belleza. '), write(NomV), write(' cobra 50.'), nl
-    ; Premio = -100, write('[CARTA] -> Pago de impuestos atrasados. '), write(NomV), write(' paga 100.'), nl),
+    (ValorCarta =:= 0 -> Premio = 100, write('[CARTA] -> Error bancario. '), write(NomV), write(' cobra 100.'), nl
+    ; ValorCarta =:= 1 -> Premio = -50, write('[CARTA] -> Multa. '), write(NomV), write(' paga 50.'), nl
+    ; ValorCarta =:= 2 -> Premio = 50, write('[CARTA] -> Premio. '), write(NomV), write(' cobra 50.'), nl
+    ; Premio = -100, write('[CARTA] -> Impuestos. '), write(NomV), write(' paga 100.'), nl),
     NuevoDinV is DinV + Premio,
     VisitanteFinal = jugador(NomV, PosV, NuevoDinV, PropsV),
     actualizar_lista_jugadores(Jugadores, VisitanteFinal, JugadoresFinales).
@@ -149,7 +153,7 @@ interactuar_con_casilla(Visitante, _, Jugadores, _TurnoGlobal, _Modo, Visitante,
     actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
 
 % -------------------------------------------------------------------
-% VERIFICADOR DE MONOPOLIO (Regla 2)
+% MONOPOLIO Y BANCARROTA (Todo identico)
 % -------------------------------------------------------------------
 grupo_color(marron, [marron1, marron2]).
 grupo_color(celeste, [celeste1, celeste2, celeste3]).
@@ -167,9 +171,6 @@ tiene_todas([Prop | Resto], PropiedadesJugador) :-
 verificar_monopolio(jugador(_, _, _, PropsJugador), Color) :-
     grupo_color(Color, PropsColor), tiene_todas(PropsColor, PropsJugador).
 
-% -------------------------------------------------------------------
-% REGLA 3: BANCARROTA Y LIQUIDACION
-% -------------------------------------------------------------------
 eliminar_jugador([], _, []).
 eliminar_jugador([jugador(NomBuscado, _, _, _) | Resto], NomBuscado, Resto) :- !.
 eliminar_jugador([J | Resto], NomBuscado, [J | RestoNuevo]) :- eliminar_jugador(Resto, NomBuscado, RestoNuevo).
@@ -180,7 +181,7 @@ liquidar_activos(jugador(Nom, Pos, Din, [PropAVender | RestoProps]), Tablero, Ju
     (member(propiedad(PropAVender, PrecioOriginal, _), Tablero) ; member(estacion(PropAVender, PrecioOriginal), Tablero)),
     ValorVenta is PrecioOriginal // 2, 
     NuevoDin is Din + ValorVenta,
-    write('[LIQUIDACION] -> '), write(Nom), write(' vende '), write(PropAVender), write(' al banco por '), write(ValorVenta), nl,
+    write('[LIQUIDACION] -> '), write(Nom), write(' vende '), write(PropAVender), write(' por '), write(ValorVenta), nl,
     liquidar_activos(jugador(Nom, Pos, NuevoDin, RestoProps), Tablero, JugadorFinal).
 
 aplicar_bancarrota(JugadorEnRiesgo, Tablero, JugadoresActuales, JugadoresFinales) :-
@@ -190,10 +191,10 @@ aplicar_bancarrota(JugadorEnRiesgo, Tablero, JugadoresActuales, JugadoresFinales
     JugadorTrasLiquidar = jugador(_, _, DineroFinal, _),
     (DineroFinal < 0 ->
         eliminar_jugador(JugadoresActuales, Nombre, JugadoresFinales),
-        write('[BANCARROTA DEFINITIVA] -> '), write(Nombre), write(' no pudo saldar sus deudas y es eliminado.'), nl
+        write('[BANCARROTA DEFINITIVA] -> '), write(Nombre), write(' es eliminado.'), nl
     ;
         actualizar_lista_jugadores(JugadoresActuales, JugadorTrasLiquidar, JugadoresFinales),
-        write('[RESCATE] -> '), write(Nombre), write(' ha conseguido sobrevivir vendiendo activos.'), nl
+        write('[RESCATE] -> '), write(Nombre), write(' ha sobrevivido.'), nl
     ).
 
 aplicar_bancarrota(Jugador, _, Jugadores, Jugadores) :-
