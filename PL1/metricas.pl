@@ -17,7 +17,10 @@ patrimonio_total(jugador(_, _, Dinero, Props), Tablero, Total) :-
 
 sumar_valor_props([], _, Acumulador, Acumulador).
 sumar_valor_props([Prop | Resto], Tablero, Acumulador, Total) :-
-    (member(propiedad(Prop, Precio, _), Tablero) ; member(estacion(Prop, Precio), Tablero)), !,
+    ( member(propiedad(Prop, Precio, _), Tablero) 
+    ; member(estacion(Prop, Precio), Tablero) 
+    ; member(servicio(Prop, Precio), Tablero) 
+    ), !,
     NuevoAcumulador is Acumulador + Precio,
     sumar_valor_props(Resto, Tablero, NuevoAcumulador, Total).
 
@@ -33,7 +36,6 @@ mostrar_metricas(estado(Jugadores, Tablero, _, _), Historial) :-
     write('>> MAPA DE CALOR (VISITAS POR CASILLA):'), nl,
     imprimir_mapa_calor(Tablero, 0, Historial),
     
-    % --- NUEVO RESUMEN DETALLADO POR JUGADOR ---
     contar_unicas_global(Historial, NumGlobal),
     contar_unicas_jugador(jugador1, Historial, NumJ1),
     contar_unicas_jugador(jugador2, Historial, NumJ2),
@@ -44,9 +46,28 @@ mostrar_metricas(estado(Jugadores, Tablero, _, _), Historial) :-
     write('   - jugador2 ha pisado: '), write(NumJ2), write(' de 40 casillas.'), nl,
     nl,
     
-    write('>> REGISTRO DE COMPRAS:'), nl,
+    write('>> REGISTRO HISTORICO DE COMPRAS:'), nl,
     imprimir_compras(Historial),
     nl,
+    
+    % =========================================================
+    % INVENTARIO DE PROPIEDADES POR JUGADOR (Con filtro anti-duplicados)
+    % =========================================================
+    member(jugador(jugador1, _, _, PropsJ1_Bruto), Jugadores),
+    member(jugador(jugador2, _, _, PropsJ2_Bruto), Jugadores),
+    
+    sort(PropsJ1_Bruto, PropsJ1_Limpias),
+    sort(PropsJ2_Bruto, PropsJ2_Limpias),
+    
+    length(PropsJ1_Limpias, TotalJ1),
+    length(PropsJ2_Limpias, TotalJ2),
+    TotalCompradas is TotalJ1 + TotalJ2,
+    
+    write('>> INVENTARIO FINAL DE PROPIEDADES ('), write(TotalCompradas), write('/28 adquiridas):'), nl,
+    write('   jugador1 ['), write(TotalJ1), write(']: '), write(PropsJ1_Limpias), nl,
+    write('   jugador2 ['), write(TotalJ2), write(']: '), write(PropsJ2_Limpias), nl,
+    nl,
+    % =========================================================
     
     write('>> RANKING FINAL (Patrimonio Total = Dinero + Activos):'), nl,
     generar_ranking(Jugadores, Tablero, [], RankingDesordenado),

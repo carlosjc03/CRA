@@ -52,6 +52,8 @@ interactuar_con_casilla(Visitante, estacion(IdEstacion, Precio), Jugadores, _Tur
 % -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _TurnoGlobal, manual, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, PosV, DinV, PropsV),
+    % Comprobacion CLAVE: Que nadie (ni yo, ni el otro) la tenga ya
+    \+ (member(jugador(_, _, _, PropsOtro), Jugadores), member(IdProp, PropsOtro)),
     DinV >= Precio, !, 
     write('>>> INFO: La propiedad '), write(IdProp), write(' esta libre y cuesta '), write(Precio), nl,
     write('>>> Tu saldo es '), write(DinV), write('. Deseas comprarla? (Escribe s. o n.): '),
@@ -72,6 +74,8 @@ interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _Tur
 % -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _TurnoGlobal, simulacion, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, PosV, DinV, PropsV),
+    % Comprobacion CLAVE: Que nadie (ni yo, ni el otro) la tenga ya
+    \+ (member(jugador(_, _, _, PropsOtro), Jugadores), member(IdProp, PropsOtro)),
     DinV >= Precio, !, 
     NuevoDinV is DinV - Precio,
     VisitanteFinal = jugador(NomV, PosV, NuevoDinV, [IdProp | PropsV]),
@@ -83,6 +87,8 @@ interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _Tur
 % -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, estacion(IdEstacion, Precio), Jugadores, _TurnoGlobal, manual, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, PosV, DinV, PropsV),
+    % Comprobacion CLAVE: Que nadie la tenga
+    \+ (member(jugador(_, _, _, PropsOtro), Jugadores), member(IdEstacion, PropsOtro)),
     DinV >= Precio, !, 
     write('>>> INFO: La estacion '), write(IdEstacion), write(' esta libre y cuesta '), write(Precio), nl,
     write('>>> Tu saldo es '), write(DinV), write('. Deseas comprarla? (Escribe s. o n.): '),
@@ -103,12 +109,48 @@ interactuar_con_casilla(Visitante, estacion(IdEstacion, Precio), Jugadores, _Tur
 % -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, estacion(IdEstacion, Precio), Jugadores, _TurnoGlobal, simulacion, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, PosV, DinV, PropsV),
+    % Comprobacion CLAVE: Que nadie la tenga
+    \+ (member(jugador(_, _, _, PropsOtro), Jugadores), member(IdEstacion, PropsOtro)),
     DinV >= Precio, !, 
     NuevoDinV is DinV - Precio,
     VisitanteFinal = jugador(NomV, PosV, NuevoDinV, [IdEstacion | PropsV]),
     actualizar_lista_jugadores(Jugadores, VisitanteFinal, JugadoresFinales),
     write('[REGLA 0 - COMPRA AUTO] -> '), write(NomV), write(' adquiere '), write(IdEstacion), write(' por '), write(Precio), nl.
 
+% -------------------------------------------------------------------
+% REGLA 0.E: COMPRA SERVICIOS (MODO MANUAL)
+% -------------------------------------------------------------------
+interactuar_con_casilla(Visitante, servicio(IdServicio, Precio), Jugadores, _TurnoGlobal, manual, VisitanteFinal, JugadoresFinales) :-
+    Visitante = jugador(NomV, PosV, DinV, PropsV),
+    % Comprobacion: Que nadie lo tenga
+    \+ (member(jugador(_, _, _, PropsOtro), Jugadores), member(IdServicio, PropsOtro)),
+    DinV >= Precio, !, 
+    write('>>> INFO: El servicio '), write(IdServicio), write(' esta libre y cuesta '), write(Precio), nl,
+    write('>>> Tu saldo es '), write(DinV), write('. Deseas comprarlo? (Escribe s. o n.): '),
+    read(Respuesta),
+    (Respuesta == s ->
+        NuevoDinV is DinV - Precio,
+        VisitanteFinal = jugador(NomV, PosV, NuevoDinV, [IdServicio | PropsV]),
+        actualizar_lista_jugadores(Jugadores, VisitanteFinal, JugadoresFinales),
+        write('[REGLA 0 - COMPRA] -> Has adquirido '), write(IdServicio), nl
+    ;
+        VisitanteFinal = Visitante,
+        actualizar_lista_jugadores(Jugadores, VisitanteFinal, JugadoresFinales),
+        write('[PASAR] -> Has decidido ahorrar tu dinero.'), nl
+    ).
+
+% -------------------------------------------------------------------
+% REGLA 0.F: COMPRA SERVICIOS (MODO SIMULACION)
+% -------------------------------------------------------------------
+interactuar_con_casilla(Visitante, servicio(IdServicio, Precio), Jugadores, _TurnoGlobal, simulacion, VisitanteFinal, JugadoresFinales) :-
+    Visitante = jugador(NomV, PosV, DinV, PropsV),
+    % Comprobacion: Que nadie lo tenga
+    \+ (member(jugador(_, _, _, PropsOtro), Jugadores), member(IdServicio, PropsOtro)),
+    DinV >= Precio, !, 
+    NuevoDinV is DinV - Precio,
+    VisitanteFinal = jugador(NomV, PosV, NuevoDinV, [IdServicio | PropsV]),
+    actualizar_lista_jugadores(Jugadores, VisitanteFinal, JugadoresFinales),
+    write('[REGLA 0 - COMPRA AUTO] -> '), write(NomV), write(' adquiere '), write(IdServicio), write(' por '), write(Precio), nl.
 % -------------------------------------------------------------------
 % REGLA 4: IMPUESTOS
 % -------------------------------------------------------------------
