@@ -2,7 +2,39 @@
 % Archivo: regla.pl
 % Descripcion: Motor economico y reglas especiales del juego.
 % ==========================================
+% ===================================================================
+% INTERRUPTORES DE DESARROLLO INCREMENTAL (Feature Flags)
+% Esto nos permite aislar fases de prueba sin duplicar archivos.
+% ===================================================================
 
+% --- FASE 1: SOLO MOVIMIENTO ---
+% Bloquea compras, alquileres, servicios, cartas e impuestos. 
+interactuar_con_casilla(Visitante, propiedad(_,_,_), Jugadores, _, fase1, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+interactuar_con_casilla(Visitante, estacion(_,_), Jugadores, _, fase1, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+interactuar_con_casilla(Visitante, servicio(_,_), Jugadores, _, fase1, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+interactuar_con_casilla(Visitante, carta, Jugadores, _, fase1, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+interactuar_con_casilla(Visitante, impuesto(_), Jugadores, _, fase1, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+
+% --- FASE 2: MOVIMIENTO + CARTAS E IMPUESTOS ---
+% Bloquea las compras y los alquileres. Deja pasar lo demas.
+interactuar_con_casilla(Visitante, propiedad(_,_,_), Jugadores, _, fase2, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+interactuar_con_casilla(Visitante, estacion(_,_), Jugadores, _, fase2, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+interactuar_con_casilla(Visitante, servicio(_,_), Jugadores, _, fase2, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+interactuar_con_casilla(V, C, J, T, fase2, VF, JF) :- !, interactuar_con_casilla(V, C, J, T, simulacion, VF, JF).
+
+% --- FASE 3: MOVIMIENTO + CARTAS + COMPRAS (Sin Alquiler) ---
+% Bloquea SOLO el pago de alquileres cuando la casilla ya es del enemigo.
+interactuar_con_casilla(Visitante, propiedad(Id,_,_), Jugadores, _, fase3, Visitante, JugadoresFinales) :- 
+    Visitante = jugador(NomV,_,_,_), member(jugador(NomD,_,_,PropsD), Jugadores), NomD \= NomV, member(Id, PropsD), !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+interactuar_con_casilla(Visitante, estacion(Id,_), Jugadores, _, fase3, Visitante, JugadoresFinales) :- 
+    Visitante = jugador(NomV,_,_,_), member(jugador(NomD,_,_,PropsD), Jugadores), NomD \= NomV, member(Id, PropsD), !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+interactuar_con_casilla(Visitante, servicio(Id,_), Jugadores, _, fase3, Visitante, JugadoresFinales) :- 
+    Visitante = jugador(NomV,_,_,_), member(jugador(NomD,_,_,PropsD), Jugadores), NomD \= NomV, member(Id, PropsD), !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+interactuar_con_casilla(V, C, J, T, fase3, VF, JF) :- !, interactuar_con_casilla(V, C, J, T, simulacion, VF, JF).
+
+% ===================================================================
+% A PARTIR DE AQUI ESTÁN TUS REGLAS NORMALES (Alquiler, Compras, etc.)
+% ===================================================================
 % -------------------------------------------------------------------
 % REGLA 1.A: PAGO DE ALQUILER (Propiedades y Monopolio)
 % -------------------------------------------------------------------
@@ -241,3 +273,5 @@ aplicar_bancarrota(JugadorEnRiesgo, Tablero, JugadoresActuales, JugadoresFinales
 
 aplicar_bancarrota(Jugador, _, Jugadores, Jugadores) :-
     Jugador = jugador(_, _, Dinero, _), Dinero >= 0.
+
+

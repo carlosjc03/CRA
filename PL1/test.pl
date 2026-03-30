@@ -1,62 +1,66 @@
 % ==========================================
 % Archivo: test.pl
-% Descripcion: Pruebas unitarias progresivas
+% Descripcion: Bateria de Pruebas - FASE 1 (Movimiento Aislado)
 % ==========================================
 
 :- consult('main.pl').
 
-% -------------------------------------------------------------------
-% TEST 1: MOVIMIENTO PURO (Aislado, sin reglas economicas)
-% -------------------------------------------------------------------
-test1_movimiento_puro :-
-    estado_inicial(estado(Jugadores, _, QuienMueve, NumTurno)),
-    buscar_jugador(Jugadores, QuienMueve, JugadorFisico),
-    write('>> TEST 1: MOVIMIENTO PURO (Sin economia)'), nl,
-    write('   Estado Antes: '), write(JugadorFisico), nl,
-    ejecutar_movimiento(JugadorFisico, NumTurno, JugadorMovido, Dado),
-    write('   Dado sacado: '), write(Dado), nl,
-    write('   Estado Despues: '), write(JugadorMovido), nl, nl.
+% ===================================================================
+% TEST 1: MOVIMIENTO SIMPLE (1 Turno, 1 Jugador)
+% ===================================================================
+test1_movimiento_simple :-
+    tablero_inicial(Tablero), % <--- Usamos el tablero REAL de main.pl
+    Estado = estado([jugador(jugador1, 0, 50000, [])], Tablero, jugador1, 1),
+    write('>> TEST 1: Movimiento Simple (1 Turno)'), nl,
+    bucle_juego_prueba(Estado, 1, [], fase1). % <--- Llamamos al motor de pruebas en fase1
 
-% -------------------------------------------------------------------
-% TEST 2: COMPRA DE PROPIEDAD (Regla 0)
-% -------------------------------------------------------------------
-test2_compra :-
+% ===================================================================
+% TEST 2: MOVIMIENTO LIBRE (X Turnos, Ambos Jugadores)
+% Ejecucion en consola: ?- test2_movimiento_libre(20).
+% ===================================================================
+test2_movimiento_libre(Turnos) :-
     tablero_inicial(Tablero),
-    EstadoPrueba = estado([jugador(jugador1, 0, 1500, []), jugador(jugador2, 0, 1500, [])], Tablero, jugador1, 1),
-    write('>> TEST 2: COMPRA DE PROPIEDAD'), nl,
-    turno_limpio(EstadoPrueba, _, simulacion, _).
+    Estado = estado([jugador(jugador1, 0, 50000, []), jugador(jugador2, 0, 50000, [])], Tablero, jugador1, 1),
+    write('>> TEST 2: Movimiento Libre | Turnos: '), write(Turnos), nl,
+    bucle_juego_prueba(Estado, Turnos, [], fase1).
 
-% -------------------------------------------------------------------
-% TEST 3: PAGO DE ALQUILER (Regla 1)
-% -------------------------------------------------------------------
-test3_alquiler :-
+% ===================================================================
+% TEST 3: COBERTURA CONJUNTA (95 Turnos)
+% Objetivo: Demostrar que entre los dos pisan las 40 casillas.
+% ===================================================================
+test3_cobertura_conjunta :-
     tablero_inicial(Tablero),
-    EstadoPrueba = estado([jugador(jugador1, 0, 1500, [celeste1]), jugador(jugador2, 4, 1500, [])], Tablero, jugador2, 2),
-    write('>> TEST 3: PAGO DE ALQUILER'), nl,
-    turno_limpio(EstadoPrueba, _, simulacion, _).
+    Estado = estado([jugador(jugador1, 0, 50000, []), jugador(jugador2, 0, 50000, [])], Tablero, jugador1, 1),
+    write('>> TEST 3: Cobertura Conjunta (95 Turnos -> 40/40 casillas)'), nl,
+    bucle_juego_prueba(Estado, 95, [], fase1).
 
-% -------------------------------------------------------------------
-% TEST 4: COBERTURA DEL TABLERO
-% Objetivo: Ver cuantas casillas unicas se pisan en 100 turnos.
-% -------------------------------------------------------------------
-test4_cobertura :-
-    estado_inicial(E0),
-    write('>> TEST 4: COBERTURA DE TABLERO (100 Turnos)'), nl,
-    bucle_juego(E0, 100, []).
+% ===================================================================
+% TEST 4: COBERTURA INDIVIDUAL JUGADOR 1 (143 Turnos)
+% Objetivo: Demostrar que el J1 necesita 143 turnos para el 40/40.
+% ===================================================================
+test4_cobertura_j1 :-
+    tablero_inicial(Tablero),
+    Estado = estado([jugador(jugador1, 0, 50000, [])], Tablero, jugador1, 1),
+    write('>> TEST 4: Cobertura J1 (143 Turnos -> 40/40 casillas)'), nl,
+    bucle_juego_prueba(Estado, 143, [], fase1).
 
-% -------------------------------------------------------------------
-% TEST 5: SIMULACION DE ESTRÉS
-% Objetivo: Ejecutar 1500 turnos para ver el final del juego o si hay quiebra.
-% -------------------------------------------------------------------
-test5_estres :-
-    estado_inicial(E0),
-    write('>> TEST 5: JUEGO COMPLETO Y METRICAS FINALES'), nl,
-    bucle_juego(E0, 1500, []).
+% ===================================================================
+% TEST 5: COBERTURA INDIVIDUAL JUGADOR 2 (204 Turnos)
+% Objetivo: Demostrar la resonancia del J2 por culpa de la carcel.
+% ===================================================================
+test5_cobertura_j2 :-
+    tablero_inicial(Tablero),
+    Estado = estado([jugador(jugador2, 0, 50000, [])], Tablero, jugador2, 2), % <--- Solo el J2
+    write('>> TEST 5: Cobertura J2 (204 Turnos -> 40/40 casillas)'), nl,
+    bucle_juego_prueba(Estado, 204, [], fase1).
 
-test_todos :-
-    test1_movimiento_puro,
-    test2_compra,
-    test3_alquiler,
-    test4_cobertura,
-    test5_estres,
-    write('>> TODOS LOS TESTS FINALIZADOS.'), nl.
+% ===================================================================
+% MOTOR INTERNO PARA INYECTAR LAS FASES (Imprescindible)
+% ===================================================================
+bucle_juego_prueba(EstadoActual, 0, Historial, _) :- !, mostrar_metricas(EstadoActual, Historial).
+bucle_juego_prueba(EstadoActual, TurnosRestantes, HistorialActual, Modo) :-
+    TurnosRestantes > 0,
+    turno_limpio(EstadoActual, EstadoSiguiente, Modo, EventosNuevos),
+    append(HistorialActual, EventosNuevos, HistorialActualizado),
+    N is TurnosRestantes - 1,
+    bucle_juego_prueba(EstadoSiguiente, N, HistorialActualizado, Modo).
