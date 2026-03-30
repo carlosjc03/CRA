@@ -245,6 +245,146 @@ Para 204 turnos (jugador 2 pisando todas las casillas del tablero), la distribuc
    - [Casilla 39] azul2 -> jugador1: 3 veces | jugador2: 2 veces
 
 
+--- TEST CARTAS ------
+Usamos la formula ValorCarta is (TurnoGlobal * 47 + PosV * 11) mod 4,
+
+
+Se tardan 73 turnos para que entre los 2 pisen las 6 casillas de 'Carta':
+
+   - Carta en Casilla 2 -> jugador1: 1 veces | jugador2: 1 veces
+   - Carta en Casilla 7 -> jugador1: 1 veces | jugador2: 1 veces
+   - Carta en Casilla 17 -> jugador1: 1 veces | jugador2: 1 veces
+   - Carta en Casilla 22 -> jugador1: 1 veces | jugador2: 0 veces
+   - Carta en Casilla 33 -> jugador1: 0 veces | jugador2: 1 veces
+   - Carta en Casilla 36 -> jugador1: 0 veces | jugador2: 1 veces
+
+   - Balance J1 tras efecto de cartas: -50
+   - Balance J2 tras efecto de cartas: -100
+
+>> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 5850
+   jugador2 -> Patrimonio total: 5500
+
+
+- En 95 turnos (que entre los 2 jugadores, pasen por las 40 casillas), passa lo siguiente:
+     FRECUENCIA DE CAIDA EN CASILLAS DE CARTA (Suerte/Caja):
+
+   - Carta en Casilla 2 -> jugador1: 1 veces | jugador2: 1 veces
+   - Carta en Casilla 7 -> jugador1: 1 veces | jugador2: 2 veces
+   - Carta en Casilla 17 -> jugador1: 1 veces | jugador2: 2 veces
+   - Carta en Casilla 22 -> jugador1: 1 veces | jugador2: 0 veces
+    
+   - Balance J1 tras efecto de cartas: -50
+   - Balance J2 tras efecto de cartas: -250
+
+   >> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 6250
+   jugador2 -> Patrimonio total: 5500
+
+
+- En 143 turnos (J1 pasa por las 40 casillas), passa lo siguiente:
+
+>> FRECUENCIA DE CAIDA EN CASILLAS DE CARTA (Suerte/Caja):
+   - Carta en Casilla 2 -> jugador1: 1 veces | jugador2: 2 veces
+   - Carta en Casilla 7 -> jugador1: 1 veces | jugador2: 3 veces
+   - Carta en Casilla 17 -> jugador1: 1 veces | jugador2: 3 veces
+   - Carta en Casilla 22 -> jugador1: 3 veces | jugador2: 0 veces
+   - Carta en Casilla 33 -> jugador1: 1 veces | jugador2: 1 veces
+   - Carta en Casilla 36 -> jugador1: 1 veces | jugador2: 1 veces
+
+   - Balance J1 tras efecto de cartas: -250
+   - Balance J2 tras efecto de cartas: -300
+
+>> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 6700
+   jugador2 -> Patrimonio total: 6050
+
+
+- En 204 turnos (J2 pasa por las 40 casillas), passa lo siguiente:
+
+>> FRECUENCIA DE CAIDA EN CASILLAS DE CARTA (Suerte/Caja):
+   - Carta en Casilla 2 -> jugador1: 1 veces | jugador2: 2 veces
+   - Carta en Casilla 7 -> jugador1: 1 veces | jugador2: 3 veces
+   - Carta en Casilla 17 -> jugador1: 1 veces | jugador2: 3 veces
+   - Carta en Casilla 22 -> jugador1: 3 veces | jugador2: 0 veces
+   - Carta en Casilla 33 -> jugador1: 1 veces | jugador2: 1 veces
+   - Carta en Casilla 36 -> jugador1: 1 veces | jugador2: 1 veces
+
+   - Balance J1 tras efecto de cartas: -200
+   - Balance J2 tras efecto de cartas: -100
+
+>> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 7700
+   jugador2 -> Patrimonio total: 7350
+
+
+- En 600 turnos, pasa lo siguiente:
+
+>> FRECUENCIA DE CAIDA EN CASILLAS DE CARTA (Suerte/Caja):
+   - Carta en Casilla 2 -> jugador1: 4 veces | jugador2: 5 veces
+   - Carta en Casilla 7 -> jugador1: 9 veces | jugador2: 11 veces
+   - Carta en Casilla 17 -> jugador1: 8 veces | jugador2: 9 veces
+   - Carta en Casilla 22 -> jugador1: 11 veces | jugador2: 9 veces
+   - Carta en Casilla 33 -> jugador1: 6 veces | jugador2: 6 veces
+   - Carta en Casilla 36 -> jugador1: 7 veces | jugador2: 6 veces
+
+   - Balance J1 tras efecto de cartas: 50
+   - Balance J2 tras efecto de cartas: -250
+
+   >> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 12250
+   jugador2 -> Patrimonio total: 11550
+
+
+- En 1000 turnos, pasa lo siguiente:
+
+   - Carta en Casilla 2 -> jugador1: 7 veces | jugador2: 7 veces
+   - Carta en Casilla 7 -> jugador1: 17 veces | jugador2: 19 veces
+   - Carta en Casilla 17 -> jugador1: 13 veces | jugador2: 14 veces
+   - Carta en Casilla 22 -> jugador1: 18 veces | jugador2: 16 veces
+   - Carta en Casilla 33 -> jugador1: 10 veces | jugador2: 11 veces
+   - Carta en Casilla 36 -> jugador1: 11 veces | jugador2: 11 veces
+
+   - Balance J1 tras efecto de cartas: 300
+   - Balance J2 tras efecto de cartas: -400
+
+   >> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 17000
+   jugador2 -> Patrimonio total: 15850
+
+
+- En 2000 turnos, pasa lo siguiente:
+
+   - Carta en Casilla 2 -> jugador1: 14 veces | jugador2: 14 veces
+   - Carta en Casilla 7 -> jugador1: 35 veces | jugador2: 35 veces
+   - Carta en Casilla 17 -> jugador1: 27 veces | jugador2: 29 veces
+   - Carta en Casilla 22 -> jugador1: 36 veces | jugador2: 35 veces
+   - Carta en Casilla 33 -> jugador1: 22 veces | jugador2: 22 veces
+   - Carta en Casilla 36 -> jugador1: 23 veces | jugador2: 23 veces
+
+   - Balance J1 tras efecto de cartas: 900
+   - Balance J2 tras efecto de cartas: -350
+
+   >> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 29200
+   jugador2 -> Patrimonio total: 27600
+
+- En 3000 turnos, pasa lo siguiente:
+
+   - Carta en Casilla 2 -> jugador1: 21 veces | jugador2: 22 veces
+   - Carta en Casilla 7 -> jugador1: 54 veces | jugador2: 54 veces
+   - Carta en Casilla 17 -> jugador1: 40 veces | jugador2: 42 veces
+   - Carta en Casilla 22 -> jugador1: 55 veces | jugador2: 54 veces
+   - Carta en Casilla 33 -> jugador1: 33 veces | jugador2: 33 veces
+   - Carta en Casilla 36 -> jugador1: 34 veces | jugador2: 34 veces
+
+   - Balance J1 tras efecto de cartas: 1450
+   - Balance J2 tras efecto de cartas: -300
+
+   >> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 40950
+   jugador2 -> Patrimonio total: 38850
+
 
 
 

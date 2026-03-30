@@ -23,6 +23,8 @@ sumar_valor_props([Prop | Resto], Tablero, Acumulador, Total) :-
     ), !,
     NuevoAcumulador is Acumulador + Precio,
     sumar_valor_props(Resto, Tablero, NuevoAcumulador, Total).
+sumar_valor_props([_ | Resto], Tablero, Acumulador, Total) :- 
+    sumar_valor_props(Resto, Tablero, Acumulador, Total).
 
 % 3. MOSTRAR METRICAS
 mostrar_metricas(estado(Jugadores, Tablero, _, _), Historial) :-
@@ -50,15 +52,10 @@ mostrar_metricas(estado(Jugadores, Tablero, _, _), Historial) :-
     imprimir_compras(Historial),
     nl,
     
-    % =========================================================
-    % INVENTARIO DE PROPIEDADES POR JUGADOR (Con filtro anti-duplicados)
-    % =========================================================
     member(jugador(jugador1, _, _, PropsJ1_Bruto), Jugadores),
     member(jugador(jugador2, _, _, PropsJ2_Bruto), Jugadores),
-    
     sort(PropsJ1_Bruto, PropsJ1_Limpias),
     sort(PropsJ2_Bruto, PropsJ2_Limpias),
-    
     length(PropsJ1_Limpias, TotalJ1),
     length(PropsJ2_Limpias, TotalJ2),
     TotalCompradas is TotalJ1 + TotalJ2,
@@ -67,7 +64,9 @@ mostrar_metricas(estado(Jugadores, Tablero, _, _), Historial) :-
     write('   jugador1 ['), write(TotalJ1), write(']: '), write(PropsJ1_Limpias), nl,
     write('   jugador2 ['), write(TotalJ2), write(']: '), write(PropsJ2_Limpias), nl,
     nl,
-    % =========================================================
+    
+    % --- LA NUEVA LLAMADA AL RESUMEN DE CARTAS ---
+    mostrar_resumen_cartas(Historial),
     
     write('>> RANKING FINAL (Patrimonio Total = Dinero + Activos):'), nl,
     generar_ranking(Jugadores, Tablero, [], RankingDesordenado),
@@ -76,7 +75,6 @@ mostrar_metricas(estado(Jugadores, Tablero, _, _), Historial) :-
     imprimir_ranking(RankingFinal).
 
 % --- Funciones auxiliares de impresion ---
-
 imprimir_dados(Actual, Max, _) :- Actual > Max, !.
 imprimir_dados(Actual, Max, Historial) :-
     contar_ocurrencias(evento_dado(jugador1, Actual), Historial, C1),
@@ -105,8 +103,6 @@ imprimir_mapa_calor([Casilla | Resto], Indice, Historial) :-
     imprimir_mapa_calor(Resto, SigIndice, Historial).
 
 % --- FILTROS DE CASILLAS UNICAS ---
-
-% 1. Global (Ambos jugadores)
 extraer_casillas_global([], []).
 extraer_casillas_global([evento_visita(_, Pos) | Resto], [Pos | RestoCasillas]) :- !, extraer_casillas_global(Resto, RestoCasillas).
 extraer_casillas_global([_ | Resto], Casillas) :- extraer_casillas_global(Resto, Casillas).
@@ -116,7 +112,6 @@ contar_unicas_global(Historial, Num) :-
     sort(TodasCasillas, CasillasUnicas), 
     length(CasillasUnicas, Num).
 
-% 2. Por Jugador individual
 extraer_casillas_jugador(_, [], []).
 extraer_casillas_jugador(JugadorFiltro, [evento_visita(JugadorFiltro, Pos) | Resto], [Pos | RestoCasillas]) :- 
     !, extraer_casillas_jugador(JugadorFiltro, Resto, RestoCasillas).
@@ -127,8 +122,6 @@ contar_unicas_jugador(JugadorFiltro, Historial, Num) :-
     extraer_casillas_jugador(JugadorFiltro, Historial, CasillasDelJugador),
     sort(CasillasDelJugador, CasillasUnicas),
     length(CasillasUnicas, Num).
-
-% ---------------------------------
 
 extraer_nombre(propiedad(N, _, _), N) :- !.
 extraer_nombre(estacion(N, _), N) :- !.
@@ -152,3 +145,28 @@ imprimir_ranking([]).
 imprimir_ranking([[Total, Nombre] | Resto]) :-
     write('   '), write(Nombre), write(' -> Patrimonio total: '), write(Total), nl,
     imprimir_ranking(Resto).
+
+% ===================================================================
+% NUEVO MODULO: ANALISIS ESTADISTICO DE CARTAS
+% ===================================================================
+mostrar_resumen_cartas(Historial) :-
+    write('>> FRECUENCIA DE CAIDA EN CASILLAS DE CARTA (Suerte/Caja):'), nl,
+    imprimir_linea_carta(2, Historial),
+    imprimir_linea_carta(7, Historial),
+    imprimir_linea_carta(17, Historial),
+    imprimir_linea_carta(22, Historial),
+    imprimir_linea_carta(33, Historial),
+    imprimir_linea_carta(36, Historial),
+    nl.
+
+imprimir_linea_carta(Pos, Historial) :-
+    contar_ocurrencias(evento_visita(jugador1, Pos), Historial, C1),
+    contar_ocurrencias(evento_visita(jugador2, Pos), Historial, C2),
+    Total is C1 + C2,
+    (Total > 0 ->
+        write('   - Carta en Casilla '), write(Pos), write(' -> '),
+        write('jugador1: '), write(C1), write(' veces | '),
+        write('jugador2: '), write(C2), write(' veces'), nl
+    ; 
+        write('   - Carta en Casilla '), write(Pos), write(' -> Nadie ha caido aqui aun.'), nl
+    ).

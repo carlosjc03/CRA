@@ -23,8 +23,8 @@ tablero_inicial([
 ]).
 
 jugadores_iniciales([
-    jugador(jugador1, 0, 115500, []), 
-    jugador(jugador2, 0, 115500, [])
+    jugador(jugador1, 0, 1500, []), 
+    jugador(jugador2, 0, 1500, [])
 ]).
 
 estado_inicial(estado(Jugadores, Tablero, jugador1, 1)) :-

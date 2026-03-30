@@ -212,10 +212,14 @@ interactuar_con_casilla(Visitante, carta, Jugadores, TurnoGlobal, _Modo, Visitan
     !,
     Visitante = jugador(NomV, PosV, DinV, PropsV),
     ValorCarta is (TurnoGlobal * 47 + PosV * 11) mod 4,
-    (ValorCarta =:= 0 -> Premio = 100, write('[CARTA] -> Error bancario. '), write(NomV), write(' cobra 100.'), nl
-    ; ValorCarta =:= 1 -> Premio = -50, write('[CARTA] -> Multa. '), write(NomV), write(' paga 50.'), nl
-    ; ValorCarta =:= 2 -> Premio = 50, write('[CARTA] -> Premio. '), write(NomV), write(' cobra 50.'), nl
-    ; Premio = -100, write('[CARTA] -> Impuestos. '), write(NomV), write(' paga 100.'), nl),
+    (ValorCarta =:= 0 -> Tipo = 'Error Bancario', Premio = 100
+    ; ValorCarta =:= 1 -> Tipo = 'Multa', Premio = -50
+    ; ValorCarta =:= 2 -> Tipo = 'Premio', Premio = 50
+    ; Tipo = 'Impuestos Extra', Premio = -100),
+    
+    write('[CARTA] -> '), write(NomV), write(' en casilla '), write(PosV), 
+    write(' recibe: '), write(Tipo), write(' ('), write(Premio), write(' euros)'), nl,
+    
     NuevoDinV is DinV + Premio,
     VisitanteFinal = jugador(NomV, PosV, NuevoDinV, PropsV),
     actualizar_lista_jugadores(Jugadores, VisitanteFinal, JugadoresFinales).
