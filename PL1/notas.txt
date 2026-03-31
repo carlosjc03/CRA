@@ -265,6 +265,10 @@ Se tardan 73 turnos para que entre los 2 pisen las 6 casillas de 'Carta':
    jugador1 -> Patrimonio total: 5850
    jugador2 -> Patrimonio total: 5500
 
+   **nota, el patrimonio es tan alto por que partimos de 5000 euros base, deberiamos poner en verdad en todos los tests 1500 para comparar
+   el patrimonio cuando compremos, pero realmente el patrimonio=dinero total sin comprar, ya que cuando compramos perdemos liquidez, pero
+   eso que perdemos lo sumamos como activo, y por tanto nos quedamos igual
+
 
 - En 95 turnos (que entre los 2 jugadores, pasen por las 40 casillas), passa lo siguiente:
      FRECUENCIA DE CAIDA EN CASILLAS DE CARTA (Suerte/Caja):
@@ -281,6 +285,9 @@ Se tardan 73 turnos para que entre los 2 pisen las 6 casillas de 'Carta':
    jugador1 -> Patrimonio total: 6250
    jugador2 -> Patrimonio total: 5500
 
+   **nota, el patrimonio es tan alto por que partimos de 5000 euros base, deberiamos poner en verdad en todos los tests 1500 para comparar
+   el patrimonio cuando compremos, pero realmente el patrimonio=dinero total sin comprar, ya que cuando compramos perdemos liquidez, pero
+   eso que perdemos lo sumamos como activo, y por tanto nos quedamos igual
 
 - En 143 turnos (J1 pasa por las 40 casillas), passa lo siguiente:
 
@@ -299,6 +306,9 @@ Se tardan 73 turnos para que entre los 2 pisen las 6 casillas de 'Carta':
    jugador1 -> Patrimonio total: 6700
    jugador2 -> Patrimonio total: 6050
 
+   **nota, el patrimonio es tan alto por que partimos de 5000 euros base, deberiamos poner en verdad en todos los tests 1500 para comparar
+   el patrimonio cuando compremos, pero realmente el patrimonio=dinero total sin comprar, ya que cuando compramos perdemos liquidez, pero
+   eso que perdemos lo sumamos como activo, y por tanto nos quedamos igual
 
 - En 204 turnos (J2 pasa por las 40 casillas), passa lo siguiente:
 
@@ -317,6 +327,9 @@ Se tardan 73 turnos para que entre los 2 pisen las 6 casillas de 'Carta':
    jugador1 -> Patrimonio total: 7700
    jugador2 -> Patrimonio total: 7350
 
+   **nota, el patrimonio es tan alto por que partimos de 5000 euros base, deberiamos poner en verdad en todos los tests 1500 para comparar
+   el patrimonio cuando compremos, pero realmente el patrimonio=dinero total sin comprar, ya que cuando compramos perdemos liquidez, pero
+   eso que perdemos lo sumamos como activo, y por tanto nos quedamos igual
 
 - En 600 turnos, pasa lo siguiente:
 
@@ -335,6 +348,9 @@ Se tardan 73 turnos para que entre los 2 pisen las 6 casillas de 'Carta':
    jugador1 -> Patrimonio total: 12250
    jugador2 -> Patrimonio total: 11550
 
+   **nota, el patrimonio es tan alto por que partimos de 5000 euros base, deberiamos poner en verdad en todos los tests 1500 para comparar
+   el patrimonio cuando compremos, pero realmente el patrimonio=dinero total sin comprar, ya que cuando compramos perdemos liquidez, pero
+   eso que perdemos lo sumamos como activo, y por tanto nos quedamos igual
 
 - En 1000 turnos, pasa lo siguiente:
 
@@ -352,6 +368,9 @@ Se tardan 73 turnos para que entre los 2 pisen las 6 casillas de 'Carta':
    jugador1 -> Patrimonio total: 17000
    jugador2 -> Patrimonio total: 15850
 
+   **nota, el patrimonio es tan alto por que partimos de 5000 euros base, deberiamos poner en verdad en todos los tests 1500 para comparar
+   el patrimonio cuando compremos, pero realmente el patrimonio=dinero total sin comprar, ya que cuando compramos perdemos liquidez, pero
+   eso que perdemos lo sumamos como activo, y por tanto nos quedamos igual
 
 - En 2000 turnos, pasa lo siguiente:
 
@@ -369,6 +388,11 @@ Se tardan 73 turnos para que entre los 2 pisen las 6 casillas de 'Carta':
    jugador1 -> Patrimonio total: 29200
    jugador2 -> Patrimonio total: 27600
 
+   **nota, el patrimonio es tan alto por que partimos de 5000 euros base, deberiamos poner en verdad en todos los tests 1500 para comparar
+   el patrimonio cuando compremos, pero realmente el patrimonio=dinero total sin comprar, ya que cuando compramos perdemos liquidez, pero
+   eso que perdemos lo sumamos como activo, y por tanto nos quedamos igual
+
+
 - En 3000 turnos, pasa lo siguiente:
 
    - Carta en Casilla 2 -> jugador1: 21 veces | jugador2: 22 veces
@@ -384,6 +408,69 @@ Se tardan 73 turnos para que entre los 2 pisen las 6 casillas de 'Carta':
    >> RANKING FINAL (Patrimonio Total = Dinero + Activos):
    jugador1 -> Patrimonio total: 40950
    jugador2 -> Patrimonio total: 38850
+
+   **nota, el patrimonio es tan alto por que partimos de 5000 euros base, deberiamos poner en verdad en todos los tests 1500 para comparar
+   el patrimonio cuando compremos, pero realmente el patrimonio=dinero total sin comprar, ya que cuando compramos perdemos liquidez, pero
+   eso que perdemos lo sumamos como activo, y por tanto nos quedamos igual
+
+
+--- Test de Compras ----
+- En 95 turnos (en los cuales se pisan todas las casillas del tablero entre los 2 jugadores), con el dinero base (1500), obtenemos
+los siguientes resultados:
+
+>> INVENTARIO FINAL DE PROPIEDADES (24/28 adquiridas):
+   jugador1 [14]: [amarillo2,celeste1,celeste2,celeste3,electricidad,marron2,naranja3,norte,oeste,rojo1,rojo2,sur,verde1,verde3]
+   jugador2 [10]: [amarillo1,amarillo3,azul1,este,marron1,naranja1,naranja2,rosa1,rosa2,rosa3]
+
+   >> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 2750
+   jugador2 -> Patrimonio total: 2000
+
+   >> IMPACTO ECONOMICO EXACTO DE LAS CARTAS
+   - jugador1 ha obtenido un neto de: -50 euros por suerte.
+   - jugador2 ha obtenido un neto de: -250 euros por suerte.
+
+- Es decir, pese a que caemos en las 28 propiedades, solo podemos comprar 24; esto es debido a la falta de dinero; si modifcamos el bonus
+de paso por la casilla de salida o ponemos nuestro dinero inicial en 2000€ en cada jugador, podemos comprar las 28 propiedades sin problema:
+
+>> INVENTARIO FINAL DE PROPIEDADES (28/28 adquiridas): (dinero inicial a 2000€/jugador)
+   jugador1 [16]: [amarillo2,azul1,celeste1,celeste2,celeste3,electricidad,marron2,naranja2,naranja3,norte,oeste,rojo2,rojo3,sur,verde1,verde3]
+   jugador2 [12]: [agua,amarillo1,amarillo3,azul2,este,marron1,naranja1,rojo1,rosa1,rosa2,rosa3,verde2]
+
+   >> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 3250
+   jugador2 -> Patrimonio total: 2500
+
+   >> IMPACTO ECONOMICO EXACTO DE LAS CARTAS
+   - jugador1 ha obtenido un neto de: -50 euros por suerte.
+   - jugador2 ha obtenido un neto de: -250 euros por suerte.
+
+   Si no modificamos el dinero inicial (es decir cada jugador empieza con 1500), las casas se comprarian en un total de 153 turnos:
+
+   >> INVENTARIO FINAL DE PROPIEDADES (28/28 adquiridas):
+   jugador1 [16]: [agua,amarillo2,azul2,celeste1,celeste2,celeste3,electricidad,marron2,naranja3,norte,oeste,rojo1,rojo2,sur,verde1,verde3]
+   jugador2 [12]: [amarillo1,amarillo3,azul1,este,marron1,naranja1,naranja2,rojo3,rosa1,rosa2,rosa3,verde2]
+
+
+   >> RANKING FINAL (Patrimonio Total = Dinero + Activos):
+   jugador1 -> Patrimonio total: 3250
+   jugador2 -> Patrimonio total: 2850
+
+   >> IMPACTO ECONOMICO EXACTO DE LAS CARTAS
+   - jugador1 ha obtenido un neto de: -200 euros por suerte.
+   - jugador2 ha obtenido un neto de: -200 euros por suerte. 
+   
+   (aqui digamos que la suerte está pareja, cosa que en el caso de 95 turnos con 1500 y 
+   2000 turnos no es asi y beneficica al j1, aunque a la larga como vimos antes el j2 acaba teniendo mucha peor suerte)
+   Esta diferencia de patrimonio entre las 2 situaciones en las que compramos las propiedades, se puede deber a
+   . 
+   Ademas algunas propiedades han cambiado, por ejemplo Azul1, en el test de 95 turnos con 2000 la
+   compra el j1, mientras que en el de 1500 con 153 la compra el jugador 2.
+
+
+
+
+
 
 
 

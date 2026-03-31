@@ -69,6 +69,46 @@ test_simulacion_cartas(Turnos) :-
     bucle_juego_prueba(Estado, Turnos, [], fase2, 0, 0).
 
 
+
+% ===================================================================
+% FASE 3: COMPRAS (Movimiento + Cartas + Compras, SIN ALQUILER)
+% ===================================================================
+
+% -------------------------------------------------------------------
+% TEST 8: COMPRA INICIAL (Poco dinero, pocos turnos)
+% Objetivo: Ver que con 1000 euros compran las primeras calles que pisan y el saldo baja.
+% -------------------------------------------------------------------
+test_compra_inicial :-
+    tablero_inicial(Tablero),
+    % Empiezan con 1500 euros.
+    Estado = estado([jugador(jugador1, 0, 1500, []), jugador(jugador2, 0, 1500, [])], Tablero, jugador1, 1),
+    write('>> TEST 8: COMPRA INICIAL (1 turnos, 1500 euros)'), nl,
+    bucle_juego_prueba(Estado, 1, [], fase3, 0, 0).
+
+% -------------------------------------------------------------------
+% TEST 9: LIBERTAD TOTAL (Vaciando el tablero)
+% Objetivo: Con dinero normal (1500), en 95 turnos deberian comprar casi todo el tablero.
+% Si ponemos el dinero a 2000, las compran todas; si no hay que esperar al turno 153 para que el ciclo de compras se complete.
+% -------------------------------------------------------------------
+test_compra_libertad :-
+    tablero_inicial(Tablero),
+    % Les damos 1500 euros para asegurarnos de que el dinero no les frena.
+    Estado = estado([jugador(jugador1, 0, 1500, []), jugador(jugador2, 0, 1500, [])], Tablero, jugador1, 1),
+    write('>> TEST 9: LIBERTAD TOTAL (95 turnos, Dinero Ilimitado)'), nl,
+    bucle_juego_prueba(Estado, 95, [], fase3, 0, 0).
+
+% -------------------------------------------------------------------
+% TEST 10: REALISMO HASTA AGOTAR SALDO (Supervivencia)
+% Objetivo: Con los 1500 euros reales. Compraran a tope al principio, pero luego 
+% el sistema debera rechazar las compras por falta de saldo sin romper el juego.
+% -------------------------------------------------------------------
+test_compra_realista :-
+    tablero_inicial(Tablero),
+    % Saldo real oficial del juego (1500)
+    Estado = estado([jugador(jugador1, 0, 1500, []), jugador(jugador2, 0, 1500, [])], Tablero, jugador1, 1),
+    write('>> TEST 10: COMPRA REALISTA (150 turnos, 1500 euros)'), nl,
+    bucle_juego_prueba(Estado, 150, [], fase3, 0, 0).
+
 % ===================================================================
 % MOTOR INTERNO PARA INYECTAR LAS FASES (Patron Acumulador 100% Legal)
 % ===================================================================

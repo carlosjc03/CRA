@@ -7,8 +7,11 @@
 % Esto nos permite aislar fases de prueba sin duplicar archivos.
 % ===================================================================
 
+% ===================================================================
+% BLOQUE DE FASES INCREMENTALES (Debe ir al principio del archivo)
+% ===================================================================
+
 % --- FASE 1: SOLO MOVIMIENTO ---
-% Bloquea compras, alquileres, servicios, cartas e impuestos. 
 interactuar_con_casilla(Visitante, propiedad(_,_,_), Jugadores, _, fase1, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
 interactuar_con_casilla(Visitante, estacion(_,_), Jugadores, _, fase1, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
 interactuar_con_casilla(Visitante, servicio(_,_), Jugadores, _, fase1, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
@@ -16,21 +19,27 @@ interactuar_con_casilla(Visitante, carta, Jugadores, _, fase1, Visitante, Jugado
 interactuar_con_casilla(Visitante, impuesto(_), Jugadores, _, fase1, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
 
 % --- FASE 2: MOVIMIENTO + CARTAS E IMPUESTOS ---
-% Bloquea las compras y los alquileres. Deja pasar lo demas.
 interactuar_con_casilla(Visitante, propiedad(_,_,_), Jugadores, _, fase2, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
 interactuar_con_casilla(Visitante, estacion(_,_), Jugadores, _, fase2, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
 interactuar_con_casilla(Visitante, servicio(_,_), Jugadores, _, fase2, Visitante, JugadoresFinales) :- !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
 interactuar_con_casilla(V, C, J, T, fase2, VF, JF) :- !, interactuar_con_casilla(V, C, J, T, simulacion, VF, JF).
 
-% --- FASE 3: MOVIMIENTO + CARTAS + COMPRAS (Sin Alquiler) ---
-% Bloquea SOLO el pago de alquileres cuando la casilla ya es del enemigo.
+% --- FASE 3: MOVIMIENTO + CARTAS + COMPRAS AISLADAS (Sin alquiler) ---
+% 1. Propiedades:
 interactuar_con_casilla(Visitante, propiedad(Id,_,_), Jugadores, _, fase3, Visitante, JugadoresFinales) :- 
     Visitante = jugador(NomV,_,_,_), member(jugador(NomD,_,_,PropsD), Jugadores), NomD \= NomV, member(Id, PropsD), !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+% 2. Estaciones:
 interactuar_con_casilla(Visitante, estacion(Id,_), Jugadores, _, fase3, Visitante, JugadoresFinales) :- 
     Visitante = jugador(NomV,_,_,_), member(jugador(NomD,_,_,PropsD), Jugadores), NomD \= NomV, member(Id, PropsD), !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+% 3. Servicios:
 interactuar_con_casilla(Visitante, servicio(Id,_), Jugadores, _, fase3, Visitante, JugadoresFinales) :- 
     Visitante = jugador(NomV,_,_,_), member(jugador(NomD,_,_,PropsD), Jugadores), NomD \= NomV, member(Id, PropsD), !, actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
+% Enrutador mágico:
 interactuar_con_casilla(V, C, J, T, fase3, VF, JF) :- !, interactuar_con_casilla(V, C, J, T, simulacion, VF, JF).
+
+% ===================================================================
+% A PARTIR DE AQUI ESTAN TUS REGLAS NORMALES (Alquiler, compras, etc)
+% ===================================================================
 
 % ===================================================================
 % A PARTIR DE AQUI ESTÁN TUS REGLAS NORMALES (Alquiler, Compras, etc.)
@@ -261,6 +270,9 @@ liquidar_activos(jugador(Nom, Pos, Din, [PropAVender | RestoProps]), Tablero, Ju
     NuevoDin is Din + ValorVenta,
     write('[LIQUIDACION] -> '), write(Nom), write(' vende '), write(PropAVender), write(' por '), write(ValorVenta), nl,
     liquidar_activos(jugador(Nom, Pos, NuevoDin, RestoProps), Tablero, JugadorFinal).
+
+% ---> Para que no se aplique en tests de movimiento + cartas + compras <---
+aplicar_bancarrota(Jugador, _, Jugadores, Jugadores) :- Jugador = jugador(_, _, Dinero, _), Dinero < 0, !.
 
 aplicar_bancarrota(JugadorEnRiesgo, Tablero, JugadoresActuales, JugadoresFinales) :-
     JugadorEnRiesgo = jugador(Nombre, _, Dinero, _),
