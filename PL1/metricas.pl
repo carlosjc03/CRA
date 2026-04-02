@@ -52,10 +52,12 @@ mostrar_metricas(estado(Jugadores, Tablero, _, _), Historial) :-
     imprimir_compras(Historial),
     nl,
     
-    member(jugador(jugador1, _, _, PropsJ1_Bruto), Jugadores),
-    member(jugador(jugador2, _, _, PropsJ2_Bruto), Jugadores),
+    % Extraemos propiedades (si el jugador ha sido eliminado por bancarrota, devolvemos [])
+    ( member(jugador(jugador1, _, _, PropsJ1_Bruto), Jugadores) -> true ; PropsJ1_Bruto = [] ),
+    ( member(jugador(jugador2, _, _, PropsJ2_Bruto), Jugadores) -> true ; PropsJ2_Bruto = [] ),
     sort(PropsJ1_Bruto, PropsJ1_Limpias),
     sort(PropsJ2_Bruto, PropsJ2_Limpias),
+
     length(PropsJ1_Limpias, TotalJ1),
     length(PropsJ2_Limpias, TotalJ2),
     TotalCompradas is TotalJ1 + TotalJ2,
