@@ -75,10 +75,16 @@ test3_espiral_deuda :-
 
 test3_inyeccion_capital :-
     tablero_inicial(Tablero),
-    % Les damos 3000 euros. Como el J1 no se queda sin dinero, aplastara al J2.
-    Estado = estado([jugador(jugador1, 0, 3000, []), jugador(jugador2, 0, 3000, [])], Tablero, jugador1, 1),
-    write('>> TEST 3.2: Inyeccion 3000 euros (El J1 recupera el trono por rentas)'), nl,
+    % Les damos 50000 euros. Como el J1 no se queda sin dinero, aplastara al J2.
+    Estado = estado([jugador(jugador1, 0, 50000, []), jugador(jugador2, 0, 50000, [])], Tablero, jugador1, 1),
+    write('>> TEST 3.2: Inyeccion 50000 euros (El J1 recupera el trono por rentas)'), nl,
     bucle_juego(Estado, 300, [], fase3).
+
+test3_espiral_deuda_manual(Turnos) :-
+    tablero_inicial(Tablero),
+    Estado = estado([jugador(jugador1, 0, 1500, []), jugador(jugador2, 0, 1500, [])], Tablero, jugador1, 1),
+    write('>> TEST 3.3: Espiral de Deuda Manual ('), write(Turnos), write(' turnos, alquileres activos sin bancarrota)'), nl,
+    bucle_juego(Estado, Turnos, [], fase3).
 
 % ===================================================================
 % FASE 4: PARTIDA FINAL Y BANCARROTA (Reglas 3, 4, 5 y 6)
