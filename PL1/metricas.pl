@@ -1,8 +1,3 @@
-% ==========================================
-% Archivo: metricas.pl
-% Descripcion: Calculo de estadisticas usando manipulacion de listas PURA
-% ==========================================
-
 % 1. CONTADOR DE OCURRENCIAS
 contar_ocurrencias(_, [], 0).
 contar_ocurrencias(Elemento, [Elemento | Resto], N) :-
@@ -148,9 +143,15 @@ imprimir_ranking([[Total, Nombre] | Resto]) :-
     write('   '), write(Nombre), write(' -> Patrimonio total: '), write(Total), nl,
     imprimir_ranking(Resto).
 
-% ===================================================================
-% NUEVO MODULO: ANALISIS ESTADISTICO DE CARTAS
-% ===================================================================
+
+% ANALISIS ESTADISTICO DE CARTAS
+% Sumador recursivo de dinero de cartas
+sumar_cartas(_, [], 0).
+sumar_cartas(Jugador, [evento_carta(Jugador, Premio) | Resto], Total) :-
+    !, sumar_cartas(Jugador, Resto, SubTotal), Total is SubTotal + Premio.
+sumar_cartas(Jugador, [_ | Resto], Total) :- 
+    sumar_cartas(Jugador, Resto, Total).
+
 mostrar_resumen_cartas(Historial) :-
     write('>> FRECUENCIA DE CAIDA EN CASILLAS DE CARTA (Suerte/Caja):'), nl,
     imprimir_linea_carta(2, Historial),
@@ -159,6 +160,12 @@ mostrar_resumen_cartas(Historial) :-
     imprimir_linea_carta(22, Historial),
     imprimir_linea_carta(33, Historial),
     imprimir_linea_carta(36, Historial),
+    nl,
+    % Imprimos el balance exacto que han tenido ambos jugadores por efecto de las cartas (positivo o negativo)
+    sumar_cartas(jugador1, Historial, Bal1),
+    sumar_cartas(jugador2, Historial, Bal2),
+    write('   - Balance J1 tras efecto de cartas: '), write(Bal1), write(' euros.'), nl,
+    write('   - Balance J2 tras efecto de cartas: '), write(Bal2), write(' euros.'), nl,
     nl.
 
 imprimir_linea_carta(Pos, Historial) :-

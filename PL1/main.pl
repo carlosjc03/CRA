@@ -1,8 +1,3 @@
-% ==========================================
-% Archivo: main.pl
-% Descripcion: Motor principal del juego de Monopoly
-% ==========================================
-
 :- consult('regla.pl').
 :- consult('metricas.pl'). 
 
@@ -79,32 +74,32 @@ jugar_turno(estado(Jugadores, Tablero, TurnoActual, NumTurno), Dado, Modo, estad
     NuevoNumTurno is NumTurno + 1.
 
 % ==========================================
-% 5.- INTERFAZ VISUAL Y EVENTOS (Limpiado y Blindado)
+% 5.- INTERFAZ VISUAL Y EVENTOS
 % ==========================================
 turno_limpio(EstadoAntes, EstadoDespues, Modo, EventosDelTurno) :-
     EstadoAntes = estado(JugadoresAntes, Tablero, QuienMueve, NTurnos),
     buscar_jugador(JugadoresAntes, QuienMueve, JugadorActual),
-    JugadorActual = jugador(_, _, _, PropsAntes),
+    % EXTRAEMOS EL DINERO ANTES DE TIRAR:
+    JugadorActual = jugador(_, PosAntes, DineroAntes, PropsAntes), 
     
     write('=================================================='), nl,
     write('TURNO DE: '), write(QuienMueve), write(' (Tirada Global: '), write(NTurnos), write(')'), nl,
     
-    % Ejecutamos la logica del turno de forma segura y capturamos el resultado
     jugar_turno(EstadoAntes, DadoSacado, Modo, EstadoDespues),
-    
-    % Extraemos los datos post-turno para imprimirlos
     EstadoDespues = estado(NuevosJugadores, _, SiguienteTurno, _),
     
-    % Si el jugador fue eliminado, no intentamos extraer su dinero (evitamos errores)
     (buscar_jugador(NuevosJugadores, QuienMueve, JugadorTrasTurno) ->
         JugadorTrasTurno = jugador(_, NuevaPos, DinFin, PropsNuevas),
+        
+        SumaPos is PosAntes + DadoSacado,
+        PosIntermedia is SumaPos mod 40,
+        
         nth0(NuevaPos, Tablero, CasillaActual),
         extraer_nombre(CasillaActual, NombreSimple),
         
         write('--- ACCION ---'), nl,
-        write('Saca un: '), write(DadoSacado), write(' -> Cae en: '), write(NombreSimple), nl,
+        write('Saca un: '), write(DadoSacado), write(' -> Termina en: '), write(NombreSimple), nl,
         
-        % Detectar compra comparando inventarios
         length(PropsNuevas, L1), length(PropsAntes, L2),
         (L1 > L2 ->
             PropsNuevas = [PropComprada | _],
@@ -113,12 +108,22 @@ turno_limpio(EstadoAntes, EstadoDespues, Modo, EventosDelTurno) :-
             EventoCompra = []
         ),
         
-        append([evento_dado(QuienMueve, DadoSacado), evento_visita(QuienMueve, NuevaPos)], EventoCompra, EventosDelTurno),
+        % --- EL DETECTOR MAGICO DE CARTAS ---
+        ( member(PosIntermedia, [2, 7, 17, 22, 33, 36]) ->
+            (PosIntermedia < PosAntes -> BonoSalida = 200 ; BonoSalida = 0),
+            NetoCarta is DinFin - DineroAntes - BonoSalida,
+            EventoCarta = [evento_carta(QuienMueve, NetoCarta)]
+        ;
+            EventoCarta = []
+        ),
+        
+        % Metemos todo en el Historial
+        append([evento_dado(QuienMueve, DadoSacado), evento_visita(QuienMueve, PosIntermedia)], EventoCompra, TempEventos),
+        append(TempEventos, EventoCarta, EventosDelTurno),
         
         write('--- ESTADO FINAL ---'), nl,
         write('Dinero: '), write(DinFin), nl
     ; 
-        % Caso en el que el jugador muere por bancarrota
         EventosDelTurno = [evento_dado(QuienMueve, DadoSacado)],
         write('--- ACCION ---'), nl,
         write('Saca un: '), write(DadoSacado), nl,

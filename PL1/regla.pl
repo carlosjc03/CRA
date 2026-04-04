@@ -1,12 +1,4 @@
-% ==========================================
-% Archivo: regla.pl
-% Descripcion: Motor economico y reglas especiales del juego.
-% ==========================================
-
-% ===================================================================
-% BLOQUE DE FASES INCREMENTALES (Alineado con la Memoria)
-% ===================================================================
-
+% BLOQUE DE FASES INCREMENTALES 
 % --- FASE 1: SOLO MOVIMIENTO (Sin compras, sin alquiler, sin cartas/carcel) ---
 interactuar_con_casilla(V, propiedad(_,_,_), J, _, fase1, V, JF) :- !, actualizar_lista_jugadores(J, V, JF).
 interactuar_con_casilla(V, estacion(_,_), J, _, fase1, V, JF) :- !, actualizar_lista_jugadores(J, V, JF).
@@ -39,13 +31,9 @@ interactuar_con_casilla(V, impuesto(_), J, _, fase4, V, JF) :- !, actualizar_lis
 interactuar_con_casilla(V, ir_a_carcel, J, _, fase4, V, JF) :- !, actualizar_lista_jugadores(J, V, JF).
 interactuar_con_casilla(V, C, J, T, fase4, VF, JF) :- !, interactuar_con_casilla(V, C, J, T, simulacion, VF, JF).
 
-% ===================================================================
 % REGLAS NORMALES DEL JUEGO (Alquiler, Compras, Cartas)
-% ===================================================================
 
-% -------------------------------------------------------------------
 % REGLA 1.A: PAGO DE ALQUILER (Propiedades y Monopolio)
-% -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, Color), Jugadores, _, _, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, _, _, _),
     member(jugador(NomDueno, PosD, DineroD, PropsD), Jugadores),
@@ -54,7 +42,7 @@ interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, Color), Jugadores, 
     
     Dueno = jugador(NomDueno, PosD, DineroD, PropsD),
     ( verificar_monopolio(Dueno, Color) ->
-        Alquiler is Precio / 2,
+        Alquiler is Precio // 2,
         write('[ALQUILER MONOPOLIO] -> El dueno tiene el grupo '), write(Color), nl
     ;
         Alquiler is Precio // 10
@@ -69,9 +57,8 @@ interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, Color), Jugadores, 
     actualizar_lista_jugadores(TempJugadores, VisitanteFinal, JugadoresFinales),
     write('[REGLA 1] -> '), write(NomV), write(' paga '), write(Alquiler), write(' a '), write(NomDueno), nl.
 
-% -------------------------------------------------------------------
+
 % REGLA 1.B: PAGO DE ALQUILER (Estaciones)
-% -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, estacion(IdEstacion, Precio), Jugadores, _, _, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, _, _, _),
     member(jugador(NomDueno, PosD, DineroD, PropsD), Jugadores),
@@ -87,9 +74,8 @@ interactuar_con_casilla(Visitante, estacion(IdEstacion, Precio), Jugadores, _, _
     actualizar_lista_jugadores(TempJugadores, VisitanteFinal, JugadoresFinales),
     write('[REGLA 1 - ESTACION] -> '), write(NomV), write(' paga '), write(Alquiler), write(' a '), write(NomDueno), nl.
 
-% -------------------------------------------------------------------
+
 % REGLA 0.A: COMPRA PROPIEDADES (MODO MANUAL)
-% -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _, manual, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, PosV, DinV, PropsV),
     \+ (member(jugador(_, _, _, PropsOtro), Jugadores), member(IdProp, PropsOtro)),
@@ -108,9 +94,7 @@ interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _, m
         write('[PASAR] -> Has decidido ahorrar tu dinero.'), nl
     ).
 
-% -------------------------------------------------------------------
 % REGLA 0.B: COMPRA PROPIEDADES Y SERVICIOS (MODO SIMULACION)
-% -------------------------------------------------------------------
 % Propiedad
 interactuar_con_casilla(Visitante, propiedad(IdProp, Precio, _), Jugadores, _, simulacion, VisitanteFinal, JugadoresFinales) :-
     Visitante = jugador(NomV, PosV, DinV, PropsV),
@@ -141,9 +125,8 @@ interactuar_con_casilla(Visitante, servicio(IdServicio, Precio), Jugadores, _, s
     actualizar_lista_jugadores(Jugadores, VisitanteFinal, JugadoresFinales),
     write('[REGLA 0 - COMPRA AUTO] -> '), write(NomV), write(' adquiere '), write(IdServicio), write(' por '), write(Precio), nl.
 
-% -------------------------------------------------------------------
+
 % REGLA 4, 5, 6: IMPUESTOS, CARCEL, CARTAS
-% -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, impuesto(Cantidad), Jugadores, _, _, VisitanteFinal, JugadoresFinales) :-
     !, 
     Visitante = jugador(NomV, PosV, DinV, PropsV),
@@ -178,15 +161,12 @@ interactuar_con_casilla(Visitante, carta, Jugadores, TurnoGlobal, _, VisitanteFi
     VisitanteFinal = jugador(NomV, PosV, NuevoDinV, PropsV),
     actualizar_lista_jugadores(Jugadores, VisitanteFinal, JugadoresFinales).
 
-% -------------------------------------------------------------------
+
 % CASO POR DEFECTO 
-% -------------------------------------------------------------------
 interactuar_con_casilla(Visitante, _, Jugadores, _, _, Visitante, JugadoresFinales) :-
     actualizar_lista_jugadores(Jugadores, Visitante, JugadoresFinales).
 
-% ===================================================================
 % MONOPOLIO Y BANCARROTA
-% ===================================================================
 grupo_color(marron, [marron1, marron2]).
 grupo_color(celeste, [celeste1, celeste2, celeste3]).
 grupo_color(rosa, [rosa1, rosa2, rosa3]).

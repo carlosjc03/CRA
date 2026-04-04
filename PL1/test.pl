@@ -1,8 +1,3 @@
-% ==========================================
-% ARCHIVO: test.pl
-% BATERIA DE PRUEBAS OFICIAL (DEFENSA PL1)
-% ==========================================
-
 :- consult('main.pl').
 
 % ===================================================================
@@ -31,7 +26,13 @@ test1_cobertura_j2 :-
     tablero_inicial(Tablero),
     Estado = estado([jugador(jugador1, 0, 1500, []), jugador(jugador2, 0, 1500, [])], Tablero, jugador2, 2),
     write('>> TEST 1.4: Cobertura Individual J2 (204 Turnos)'), nl,
-    bucle_juego(Estado, 204, [], fase1).
+    bucle_juego(Estado, 154, [], fase1).
+
+test1_cobertura_manual(Turnos) :-
+    tablero_inicial(Tablero),
+    Estado = estado([jugador(jugador1, 0, 1500, []), jugador(jugador2, 0, 1500, [])], Tablero, jugador1, 1),
+        write('>> TEST 1.5: Cobertura Manual ('), write(Turnos), write(' Turnos)'), nl,
+    bucle_juego(Estado, Turnos, [], fase1).
 
 % ===================================================================
 % FASE 2: ECONOMIA Y COMPRAS (Regla 0)
@@ -49,18 +50,18 @@ test2_compra_realista :-
     write('>> TEST 2.2: Compra Realista hasta agotar saldo (150 turnos, 1500 euros)'), nl,
     bucle_juego(Estado, 150, [], fase2).
 
-test2_compra_libertad :-
-    tablero_inicial(Tablero),
-    % Aqui damos 3600 euros para demostrar que vacian el tablero en 95 turnos
-    Estado = estado([jugador(jugador1, 0, 3600, []), jugador(jugador2, 0, 3600, [])], Tablero, jugador1, 1),
-    write('>> TEST 2.3: Libertad Total (95 turnos, inyeccion de 3600 euros)'), nl,
-    bucle_juego(Estado, 95, [], fase2).
-
 test2_liquidez_infinita :-
     tablero_inicial(Tablero),
+    % Aqui damos 50000 euros para demostrar que vacian el tablero en 95 turnos
     Estado = estado([jugador(jugador1, 0, 50000, []), jugador(jugador2, 0, 50000, [])], Tablero, jugador1, 1),
     write('>> TEST 2.4: Liquidez Infinita (Desbalance de 18 vs 10 con 50k euros)'), nl,
-    bucle_juego(Estado, 200, [], fase2).
+    bucle_juego(Estado, 95, [], fase2).
+
+test2_compra_manual(Turnos) :-
+    tablero_inicial(Tablero),
+    Estado = estado([jugador(jugador1, 0, 1500, []), jugador(jugador2 ,0, 1500, [])], Tablero, jugador1, 1),
+    write('>> TEST 2.5: Compra Manual ('), write(Turnos), write(' turnos, 1500 euros base)'), nl,
+    bucle_juego(Estado, Turnos, [], fase2).
 
 % ===================================================================
 % FASE 3: ALQUILERES (Regla 1 y 2)
