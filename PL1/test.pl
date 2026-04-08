@@ -94,7 +94,6 @@ test4_monopolio_base :-
     tablero_inicial(Tablero),
     Estado = estado([jugador(jugador1, 0, 1500, []), jugador(jugador2, 0, 1500, [])], Tablero, jugador1, 1),
     write('>> TEST 4.1: Bancarrota Directa (Muerte Subita, sin mejoras)'), nl,
-    % Suponiendo que tienes un modo 'fase4' en tus reglas que hace eliminacion directa
     bucle_juego(Estado, 3000, [], fase4).
 
 test4_carta_inmediata :-

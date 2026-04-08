@@ -1,3 +1,7 @@
+**SIMULACION POR CONSOLA**
+estado_inicial(E), bucle_juego(E, 100, [], simulacion).
+
+
 Resultados tests:
 - Jugador 1 siempre tira en turnos impares
 - Jugador 2 tira en turnos pares
