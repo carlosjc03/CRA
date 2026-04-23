@@ -95,6 +95,11 @@ jugar_turno(estado(Jugadores, Tablero, TurnoActual, NumTurno), Dado, Modo, estad
 
     % Buscamos al quien le toca jugar en la lista de jugadores para obtener su estructura completa (posición, dinero, propiedades).
     buscar_jugador(Jugadores, TurnoActual, JugadorFisico),
+    % Mira quien es el siguiente en jugar según el orden ideal (el que estaba después en la lista al empezar el turno). 
+    % Esto es importante para detectar eliminaciones por bancarrota, ya que si por ej al final del turno el
+    % jugador que iba a tirar a continuacuion quiebra, y es eliminado la funcion asegurar_turno que está al final 
+    % se encargará de pasarle el turno a j1 (o j3 si hubiera mas jugadores) que es el siguiente en la lista, en vez 
+    % de intentar dárselo a j2 que ya no existe.
     siguiente_en_lista(TurnoActual, Jugadores, SiguienteIdeal), 
     
     % 1. Tiramos dado y movemos al jugador.
