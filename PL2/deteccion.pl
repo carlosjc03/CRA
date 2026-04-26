@@ -51,7 +51,19 @@ extraer_sujeto_verbo(o(gn(_, n(S)), gv(v(V))), S, V).
 extraer_sujeto_verbo(o(gn(_, _, n(S), _, _), gv(v(V), _)), S, V).
 extraer_sujeto_verbo(o(gn_coord(_, n(S), _, _, _), gv(v(V), _)), S, V).
 
+% --- MOTOR DE METÁFORAS E INCOHERENCIAS ---
+% Caso 1: Tecnología intangible haciendo acciones arquitectónicas o de armas (Ej: "aplicaciones disparando", "ia remodelando")
+metaphora(Sujeto, Verbo) :-
+    (tipo(Sujeto, tecnologia_intangible) ; tipo(Sujeto, producto_software)),
+    (tipo(Verbo, accion_arquitectonica) ; tipo(Verbo, accion_arma_fuego)).
+
+% Caso 2: Conceptos económicos sufriendo acciones físicas literales (Ej: "mercado cae")
+metaphora(Sujeto, Verbo) :-
+    tipo(Sujeto, concepto_economico),
+    (tipo(Verbo, accion_fisica) ; tipo(Verbo, caida_fisica)).
+
+% Caso 3: Tecnología intangible como sujeto de transformación en objeto opaco (Ej: "sistemas convertirse (en) cajas negras")
 metaphora(Sujeto, Verbo) :-
     tipo(Sujeto, tecnologia_intangible),
-    (tipo(Verbo, accion_fisica) ; tipo(Verbo, accion_humana)).
+    tipo(Verbo, accion_transformacion).
 

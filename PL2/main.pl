@@ -17,21 +17,28 @@ analizar_oracion(ID) :-
         draw(Arbol),
         
         % 2. Simplificación Inteligente
-        simplificar(Arbol, ListaSimples),
-        length(ListaSimples, NumSimples),
-        ( NumSimples > 1 ->
-            format('~n[2] Simplificación (Oración descompuesta en ~w simples):~n', [NumSimples]),
-            imprimir_simples(ListaSimples)
-        ;
-            format('~n[2] Simplificación:~n  -> La oración ya es simple. No requiere descomposición.~n')
+		(simplificar(Arbol, ListaSimples) ->
+            length(ListaSimples, NumSimples),
+            ( NumSimples > 1 ->
+                format('~n[2] Simplificación (~w oraciones simples detectadas):~n', [NumSimples]),
+                imprimir_simples(ListaSimples)
+            ;
+                format('~n[2] Simplificación:~n  -> La oración ya es simple.~n')
+            )
+        ;   % Fallback si simplificar no devuelve nada o no está implementado
+            ListaSimples = [Arbol]
         ),
         
         % 3. Detección de Problemas Semánticos
         format('~n[3] Análisis de Problemas de Interpretación:~n'),
         analizar_problemas(ListaPalabras, ListaSimples)
     ;
-        write('Error: La oración no cumple las reglas sintácticas o faltan palabras en el léxico.'), nl
+        write('~n[!]Error: La oración no cumple las reglas sintácticas o faltan palabras en el léxico.'), nl
     ).
+
+analizar_todo :-
+    findall(ID, oracion(ID, _), IDs),
+    maplist(analizar_oracion, IDs).
 
 imprimir_simples([]).
 imprimir_simples([O|Resto]) :-
