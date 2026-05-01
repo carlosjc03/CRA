@@ -466,358 +466,78 @@ nombre_tipo(compuesta,  'Compuesta (ocm)').
 %   - Compuestas con gerundio o subordinada sustantiva: principal + cada
 %     subordinada como simple independiente.
 
+simples(1, [[un,competidor,algo,directo,de,spacex,es,blue,origin]]).
 
-% --- Implementacion automatica de simples/2 ---
-% Descompone una oracion en sus simples a partir del arbol que devuelve
-% la DCG. NO reformulamos las palabras: usamos siempre las del original.
-% Si una clausula carece de sujeto explicito (gerundio independiente o
-% segunda clausula de coordinada eliptica), le restituimos el sujeto del
-% nivel superior copiando las palabras tal cual aparecen en la lista
-% original.
+simples(2, [[esta,tecnologia,se,ha,integrado,perfectamente,en,diversos,aspectos,de,las,actividades,espaciales],
+            [esta,tecnologia,se,ha,convertido,en,un,catalizador,de,cambios,sin,precedentes,en,la,economia,espacial]]).
 
-simples(ID, Lista) :-
-    oracion(ID, Palabras),
-    % Si esta declarada como excepcion 'simple', no descomponemos.
-    ( tipo_oracion_excepcion(ID, simple)
-    ->  Lista = [Palabras]
-    ;   once(oracion_dcg(Arbol, Palabras, [])),
-        tipo_oracion(ID, TipoFinal),
-        descomponer(Arbol, Palabras, TipoFinal, Lista)
-    ).
+simples(3, [[la,nueva,economia,espacial,tambien,conocida,como,espacio,'4.0',es,un,termino],
+            [el,termino,hace,referencia,a,la,comercializacion,y,democratizacion,de,la,exploracion,espacial]]).
 
-% descomponer(+Arbol, +Palabras, +TipoFinal, -ListaDeListas)
-% El TipoFinal nos dice si tratamos los gerundios como subordinadas
-% (cuando la oracion es 'compuesta') o como simples complementos
-% (cuando es 'coordinada').
+simples(4, [[xai,significa,inteligencia,artificial,explicable]]).
 
-% Caso 1: coordinada/compuesta explicita oc(O1, _, O2)
-descomponer(oc(O1, _, O2), Palabras, TipoFinal, Lista) :-
-    !,
-    ( TipoFinal == compuesta
-    ->  descomponer_clausula_con_gerundios(O1, Palabras, L1),
-        descomponer_clausula_con_gerundios(O2, Palabras, L2Bruta)
-    ;   palabras_de_clausula(O1, Palabras, P1), L1 = [P1],
-        palabras_de_clausula(O2, Palabras, P2), L2Bruta = [P2]
-    ),
-    ( tiene_sujeto(O2)
-    ->  L2 = L2Bruta
-    ;   sujeto_palabras(O1, Palabras, SujPalabras),
-        anteponer_sujeto_a_primera(SujPalabras, L2Bruta, L2)
-    ),
-    append(L1, L2, Lista).
+simples(5, [[tradicionalmente,la,exploracion,espacial,era,dominio,exclusivo,de,las,agencias,espaciales,gubernamentales],
+            [en,las,ultimas,decadas,se,ha,visto,un,cambio,hacia,una,mayor,comercializacion]]).
 
-% Caso 2: oracion simple con relativo en cualquier lugar del arbol.
-descomponer(o(GN, GV), _, _, [Principal, Relativa]) :-
-    contiene_func(o(GN,GV), rel),
-    !,
-    quitar_rel_global(o(GN,GV), Limpio),
-    hojas(Limpio, Principal),
-    extraer_antecedente_y_relativa(o(GN,GV), AntecedenteWords, GVRelWords),
-    append(AntecedenteWords, GVRelWords, Relativa).
+simples(6, [[planet,labs,se,especializa,en,obtener,imagenes,de,la,tierra,a,traves,de,su,flota,de,pequenos,satelites]]).
 
-descomponer(o(Mod, GN, GV), _, _, [Principal, Relativa]) :-
-    contiene_func(o(Mod,GN,GV), rel),
-    !,
-    quitar_rel_global(o(Mod,GN,GV), Limpio),
-    hojas(Limpio, Principal),
-    extraer_antecedente_y_relativa(o(Mod,GN,GV), AntecedenteWords, GVRelWords),
-    append(AntecedenteWords, GVRelWords, Relativa).
+simples(7, [[estos,cubesats,capturan,imagenes,de,alta,resolucion,de,la,superficie,de,la,tierra],
+            [estos,cubesats,las,ponen,a,disposicion,de,todos,los,usuarios,potenciales,pagando,una,tarifa]]).
 
-% Caso 3: oracion simple con subordinada sustantiva (subord) en el GV
-descomponer(o(GN, GV), Palabras, _, [Principal | SubLista]) :-
-    contiene_func(GV, subord),
-    !,
-    palabras_de_gn(GN, Palabras, GNPalabras),
-    palabras_principal_sin_subord(GV, Palabras, PrincipalGV),
-    append(GNPalabras, PrincipalGV, Principal),
-    todas_subord(GV, SubLista).
+simples(8, [[la,nse,esta,siendo,testigo,de,una,expansion,global,con,un,numero,record,de,paises,y,actores,comerciales],
+            [los,paises,y,actores,comerciales,invierten,en,programas,espaciales]]).
 
-% Caso 4: oracion simple con clausula(s) de gerundio independiente(s).
-% Solo descomponemos si el tipo final es 'compuesta'. Si es 'simple'
-% (excepcion como la 10), respetamos y no descomponemos.
-descomponer(o(GN, GV), Palabras, compuesta, Lista) :-
-    contiene_func(GV, gerc),
-    gerundios_separables(GV),
-    !,
-    palabras_de_gn(GN, Palabras, GNPalabras),
-    palabras_principal_sin_gerundios(GV, Palabras, PrincipalGV),
-    findall(GerPal,
-        ( extraer_gerundio(GV, Ger),
-          palabras_de_gerundio(Ger, Palabras, GerPalabrasBrutas),
-          append(GNPalabras, GerPalabrasBrutas, GerPal)
-        ),
-        GerLista),
-    ( principal_trivial(PrincipalGV)
-    ->  Lista = GerLista
-    ;   append(GNPalabras, PrincipalGV, Principal),
-        Lista = [Principal | GerLista]
-    ).
+simples(9, [[el,turismo,espacial,representa,un,mercado,incipiente,pero,potencialmente,lucrativo]]).
 
-% Caso 5: oraciones simples u o con modificadores iniciales sin nada complejo
-descomponer(_, Palabras, _, [Palabras]).
+simples(10, [[las,oportunidades,economicas,dentro,de,la,economia,espacial,se,estan,expandiendo,exponencialmente]]).
 
-% ============================================================
-% AUXILIARES PARA EXTRAER PALABRAS DEL ARBOL
-% ============================================================
-% Recorremos el subarbol y vamos sacando los atomos terminales en el
-% orden de aparicion. Para mantener el orden, simplemente reservamos
-% las palabras correspondientes al rango que ocupa cada subarbol en
-% la lista original. Como la DCG construye los arboles consumiendo
-% palabras de izquierda a derecha, basta con extraer los terminales
-% de las hojas del subarbol.
+simples(11, [[la,union,de,la,inteligencia,artificial,y,la,exploracion,espacial,esta,abriendo,nuevos,caminos],
+             [la,union,de,la,inteligencia,artificial,y,la,exploracion,espacial,esta,acelerando,la,innovacion],
+             [la,union,de,la,inteligencia,artificial,y,la,exploracion,espacial,esta,mejorando,la,eficiencia,de,las,misiones,espaciales]]).
 
-% palabras_de_clausula(+Arbol, +Original, -Sublista)
-palabras_de_clausula(Arbol, _, Sublista) :-
-    hojas(Arbol, Sublista).
+simples(12, [[el,primer,enfoque,de,la,ia,fue,el,de,los,sistemas,basados,en,reglas]]).
 
-palabras_de_gn(GN, _, P) :- hojas(GN, P).
-palabras_de_gv(GV, _, P) :- hojas(GV, P).
+simples(13, [[dl,utiliza,redes,neuronales,con,multiples,capas,redes,neuronales,profundas,para,analizar,y,aprender,de,los,datos]]).
 
-% Hojas: extrae todos los atomos terminales del arbol en orden.
-% Las marcas estructurales (gn, gv, det, etc.) NO son hojas. Cuando llegamos
-% a un termino lexico (det(la), n(competidor), v(es)...) extraemos su
-% argumento — la palabra original.
-hojas(T, [T]) :- atomic(T), T \= [], !.
-hojas([], []) :- !.
-hojas([H|R], L) :- !, hojas(H, LH), hojas(R, LR), append(LH, LR, L).
-hojas(T, []) :- var(T), !.
-hojas(T, L) :-
-    compound(T),
-    T =.. [F|Args],
-    marca_estructural(F), !,
-    hojas_lista(Args, L).
-hojas(T, [Palabra]) :-
-    compound(T),
-    T =.. [_, Palabra],
-    atomic(Palabra), !.
-hojas(T, L) :-
-    compound(T),
-    T =.. [_|Args],
-    hojas_lista(Args, L).
+simples(14, [[la,ia,como,disciplina,no,es,nueva],
+             [la,investigacion,sobre,ella,se,ha,desarrollado,a,lo,largo,de,mas,de,cincuenta,anos]]).
 
-hojas_lista([], []).
-hojas_lista([A|R], L) :- hojas(A, LA), hojas_lista(R, LR), append(LA, LR, L).
+simples(15, [[la,inteligencia,artificial,ha,revolucionado,las,operaciones,satelitales],
+             [la,inteligencia,artificial,las,hace,mas,agiles,adaptables,y,resilientes]]).
 
-% Functores estructurales (no lexicos): no son hojas terminales.
-marca_estructural(o). marca_estructural(oc). marca_estructural(ocm).
-marca_estructural(or). marca_estructural(gn). marca_estructural(gv).
-marca_estructural(gp). marca_estructural(gadj). marca_estructural(gadv).
-marca_estructural(dn). marca_estructural(dpn). marca_estructural(ddn).
-marca_estructural(an). marca_estructural(np). marca_estructural(coord).
-marca_estructural(coord_n). marca_estructural(coord_adj).
-marca_estructural(coord_v). marca_estructural(coord_ger).
-marca_estructural(d). marca_estructural(rel). marca_estructural(apos).
-marca_estructural(ap). marca_estructural(como). marca_estructural(cuant).
-marca_estructural(subord). marca_estructural(ger). marca_estructural(gerc).
-marca_estructural(infc). marca_estructural(inc). marca_estructural(coma_extra).
-marca_estructural(vpron). marca_estructural(vger). marca_estructural(v).
-marca_estructural(pron). marca_estructural(gn_coord).
+simples(16, [[los,satelites,ahora,estan,equipados,con,algoritmos,de,inteligencia,artificial],
+             [los,algoritmos,de,inteligencia,artificial,les,permiten,realizar,multitud,de,tareas,con,una,minima,intervencion,humana]]).
 
-% --- Extraccion del sujeto (en palabras) de una oracion ---
-sujeto_palabras(o(GN, _), _, P) :- !, hojas(GN, P).
-sujeto_palabras(o(_, GN, _), _, P) :- compound(GN), GN =.. [gn|_], !, hojas(GN, P).
-sujeto_palabras(_, _, []).
+simples(17, [[en,el,espacio,cada,gota,de,combustible,cuenta]]).
 
-% Un GN cuenta como sujeto real si tiene al menos un nombre. Un GN que
-% solo contiene un determinante (como "las" en "las ponen...") es en
-% realidad un clitico interpretado como pronombre, no un sujeto.
-tiene_sujeto(o(GN, _)) :-
-    compound(GN), GN =.. [gn|_],
-    es_sujeto_real(GN).
-tiene_sujeto(o(_, GN, _)) :-
-    compound(GN), GN =.. [gn|_],
-    es_sujeto_real(GN).
-tiene_sujeto(o(_, _, GN, _)) :-
-    compound(GN), GN =.. [gn|_],
-    es_sujeto_real(GN).
+simples(18, [[ademas,la,ia,mejora,la,columna,vertebral,de,las,redes,de,comunicaciones,espaciales]]).
 
-es_sujeto_real(gn(Lista)) :- contiene_func(gn(Lista), n), !.
-es_sujeto_real(gn(Lista)) :- contiene_func(gn(Lista), np), !.
-es_sujeto_real(gn(Lista)) :- contiene_func(gn(Lista), pron), !.
+simples(19, [[la,exploracion,espacial,requiere,niveles,muy,altos,de,autonomia,y,automatizacion]]).
 
-% --- Manejo de la subordinada de relativo dentro de un GN ---
-% palabras_de_gn_sin_relativo: GN sin la clausula de relativo final
-palabras_de_gn_sin_relativo(gn(Lista), _, Pal) :-
-    quitar_relativo(Lista, Lim),
-    hojas(gn(Lim), Pal).
+simples(20, [[una,senal,de,radio,tarda,de,5,a,20,minutos,en,recorrer,la,distancia,entre,marte,y,la,tierra],
+             [el,tiempo,depende,de,las,posiciones,de,los,planetas]]).
 
-quitar_relativo([], []).
-quitar_relativo([rel(_)|R], R2) :- !, quitar_relativo(R, R2).
-quitar_relativo([H|R], [H|R2]) :- quitar_relativo(R, R2).
+simples(21, [[la,inteligencia,artificial,permite,algo,a,las,naves,espaciales],
+             [las,naves,espaciales,realizan,tareas,rutinarias],
+             [las,naves,espaciales,toman,decisiones,sin,una,comunicacion,constante,con,la,tierra]]).
 
-% palabras_de_relativo: extrae el GV de la clausula de relativo
-palabras_de_relativo(GN, _, Pal) :-
-    extraer_rel(GN, GV),
-    hojas(GV, Pal).
+simples(22, [[estos,robots,utilizan,inteligencia,artificial,para,el,analisis,del,terreno,el,reconocimiento,de,objetos,y,la,navegacion],
+             [esto,les,permite,tomar,decisiones,en,funcion,de,su,entorno]]).
 
-extraer_rel(GN, GV) :-
-    contiene_subterm(GN, rel(or(_, GV))).
-extraer_rel(GN, GV) :-
-    contiene_subterm(GN, rel(or(_, _, GV))).
+simples(23, [[la,luna,y,marte,con,su,abundancia,de,recursos,son,objetivos,principales,para,la,isru]]).
 
-contiene_subterm(T, T).
-contiene_subterm(T, Sub) :-
-    nonvar(T), compound(T),
-    T =.. [_|Args],
-    ( is_list(Args) -> member(A, Args), contiene_subterm(A, Sub)
-    ; member(A, Args), contiene_subterm(A, Sub)
-    ).
-contiene_subterm(L, Sub) :-
-    is_list(L), member(E, L), contiene_subterm(E, Sub).
+simples(24, [[la,inteligencia,artificial,tambien,ha,dejado,su,huella,en,el,ambito,del,uso,de,recursos,y,la,sostenibilidad]]).
 
-% --- Subordinada sustantiva ---
-palabras_principal_sin_subord(GV, _, Pal) :-
-    quitar_subord_de_gv(GV, GVLim),
-    hojas(GVLim, Pal).
+simples(25, [[el,procesamiento,de,datos,satelitales,con,tecnicas,de,ia,permite,una,extraccion,de,informacion,mas,eficiente]]).
 
-quitar_subord_de_gv(gv(Lista), gv(Lim)) :-
-    exclude(es_subord, Lista, Lim).
-es_subord(subord(_,_)).
+simples(26, [[el,entorno,empresarial,competitivo,de,la,nueva,economia,espacial,requiere,algo],
+             [los,productos,estan,en,el,mercado,en,el,momento,adecuado]]).
 
-palabras_de_subord(GV, _, Pal) :-
-    contiene_subterm(GV, subord(_, OracionSub)),
-    hojas(OracionSub, Pal).
+simples(27, [[la,ia,se,aplica,eficazmente,a,la,evolucion,de,subsistemas,a,bordo,de,un,objeto,espacial]]).
 
-% --- Gerundios separables ---
-% Consideramos que un gerundio es separable si esta como complemento
-% del GV principal y no forma parte de una perifrasis verbal continua.
-% (Practico: cualquier ger(...) directo en la lista de comps del GV.)
-gerundios_separables(gv(Lista)) :-
-    member(ger(_), Lista), !.
-gerundios_separables(gv(Lista)) :-
-    member(coord_ger(_,_), Lista), !.
+simples(28, [[la,convergencia,entre,defensa,y,espacio,ya,figuraba,entre,los,temas,mas,debatidos,en,todo,el,mundo]]).
 
-extraer_gerundio(gv(Lista), gerc(Cuerpo)) :-
-    member(ger(gerc(Cuerpo)), Lista).
-extraer_gerundio(gv(Lista), gerc(Cuerpo)) :-
-    member(coord_ger(_, gerc(Cuerpo)), Lista).
-% Tambien capturamos gerundios anidados dentro de otros gerundios
-% (oracion 11: "abriendo... acelerando... y mejorando...")
-extraer_gerundio(gv(Lista), gerc(Cuerpo)) :-
-    member(ger(gerc(External)), Lista),
-    member(ger(gerc(Cuerpo)), External).
-extraer_gerundio(gv(Lista), gerc(Cuerpo)) :-
-    member(ger(gerc(External)), Lista),
-    member(coord_ger(_, gerc(Cuerpo)), External).
+simples(29, [[el,principal,problema,de,los,sistemas,basados,en,ia,es,algo],
+             [los,sistemas,basados,en,ia,corren,el,riesgo,de,convertirse,en,cajas,negras]]).
 
-palabras_de_gerundio(gerc(Cuerpo), _, Pal) :-
-    % Quitamos otros gerundios anidados dentro para no repetirlos
-    exclude(es_ger_anidado, Cuerpo, Limpio),
-    hojas(Limpio, Pal).
-
-es_ger_anidado(ger(_)).
-es_ger_anidado(coord_ger(_,_)).
-
-% palabras_principal_sin_gerundios: GV sin las clausulas de gerundio
-palabras_principal_sin_gerundios(gv(Lista), _, Pal) :-
-    exclude(es_gerundio_complemento, Lista, Lim),
-    hojas(gv(Lim), Pal).
-
-es_gerundio_complemento(ger(_)).
-es_gerundio_complemento(coord_ger(_,_)).
-
-% --- Helpers para subordinadas de relativo (busqueda profunda) ---
-
-% Recorre el arbol y elimina cualquier postmodificador rel(...) que encuentre.
-% Devuelve la copia del arbol sin las clausulas de relativo.
-quitar_rel_global(T, T) :- (var(T) ; atomic(T)), !.
-quitar_rel_global([], []).
-quitar_rel_global([H|R], [H2|R2]) :-
-    quitar_rel_global(H, H2),
-    quitar_rel_global(R, R2).
-quitar_rel_global(rel(_), borrar) :- !.
-quitar_rel_global(T, T2) :-
-    compound(T),
-    T =.. [F|Args],
-    quitar_rel_lista(Args, ArgsNuevos),
-    T2 =.. [F|ArgsNuevos].
-
-% Como en algunos puntos los hijos van como lista, hay que filtrar la marca
-% 'borrar' que metemos arriba.
-quitar_rel_lista([], []).
-quitar_rel_lista([Arg|R], Salida) :-
-    is_list(Arg), !,
-    quitar_rel_lista_lista(Arg, ArgFiltrado),
-    quitar_rel_lista(R, RFiltrado),
-    Salida = [ArgFiltrado|RFiltrado].
-quitar_rel_lista([Arg|R], [Arg2|R2]) :-
-    quitar_rel_global(Arg, Arg2),
-    quitar_rel_lista(R, R2).
-
-quitar_rel_lista_lista([], []).
-quitar_rel_lista_lista([H|R], R2) :-
-    quitar_rel_global(H, H2),
-    H2 == borrar, !,
-    quitar_rel_lista_lista(R, R2).
-quitar_rel_lista_lista([H|R], [H2|R2]) :-
-    quitar_rel_global(H, H2),
-    quitar_rel_lista_lista(R, R2).
-
-% extraer_antecedente_y_relativa(+Arbol, -PalabrasAntecedente, -PalabrasGVRel)
-% Encuentra el GN que contiene (de forma directa o anidada) el rel, y
-% extrae las palabras de ese GN sin el rel + las palabras del GV del rel.
-extraer_antecedente_y_relativa(Arbol, AntecedenteWords, GVRelWords) :-
-    encontrar_gn_con_rel(Arbol, GNConRel, GVRel),
-    quitar_rel_global(GNConRel, GNLimpio),
-    hojas(GNLimpio, AntecedenteWords),
-    hojas(GVRel, GVRelWords).
-
-encontrar_gn_con_rel(gn(Lista), gn(Lista), GVRel) :-
-    member(rel(or(_, GVRel)), Lista), !.
-encontrar_gn_con_rel(gn(Lista), gn(Lista), GVRel) :-
-    member(rel(or(_, _, GVRel)), Lista), !.
-encontrar_gn_con_rel(T, GN, GVRel) :-
-    compound(T),
-    T =.. [_|Args],
-    miembro_amplio(A, Args),
-    encontrar_gn_con_rel(A, GN, GVRel).
-
-% miembro_amplio: busca tanto en listas como directamente
-miembro_amplio(X, L) :- is_list(L), !, member(M, L), miembro_amplio(X, M).
-miembro_amplio(X, X).
-miembro_amplio(X, T) :-
-    nonvar(T), compound(T), T =.. [_|Args],
-    member(A, Args), miembro_amplio(X, A).
-
-% --- Auxiliares para descomponer ---
-
-% Descompone una clausula partiendo por gerundios separables
-descomponer_clausula_con_gerundios(o(GN, GV), Palabras, Resultado) :-
-    contiene_func(GV, gerc),
-    !,
-    palabras_de_gn(GN, Palabras, GNPalabras),
-    palabras_principal_sin_gerundios(GV, Palabras, PrincipalGV),
-    findall(GerPal,
-        ( extraer_gerundio(GV, Ger),
-          palabras_de_gerundio(Ger, Palabras, GerPalabrasBrutas),
-          append(GNPalabras, GerPalabrasBrutas, GerPal)
-        ),
-        GerLista),
-    % Si la principal sin gerundios es trivial (solo auxiliar como "esta")
-    % la omitimos porque no aporta significado por si sola.
-    ( principal_trivial(PrincipalGV)
-    ->  Resultado = GerLista
-    ;   append(GNPalabras, PrincipalGV, Principal),
-        Resultado = [Principal | GerLista]
-    ).
-descomponer_clausula_con_gerundios(o(GV), _, [P]) :-
-    hojas(GV, P).
-descomponer_clausula_con_gerundios(O, Palabras, [P]) :-
-    palabras_de_clausula(O, Palabras, P).
-
-% Una principal sin gerundios es trivial si tiene 0 o 1 palabras
-% (un solo auxiliar como "esta" o "ha" no es una oracion significativa).
-principal_trivial(L) :- length(L, N), N =< 1.
-
-% Antepone un sujeto (lista de palabras) a la primera lista de un conjunto
-anteponer_sujeto_a_primera(_, [], []).
-anteponer_sujeto_a_primera(Suj, [P|R], [PNueva|R]) :-
-    append(Suj, P, PNueva).
-
-% Recoge las palabras de cada subordinada distinta dentro del GV
-todas_subord(GV, Lista) :-
-    findall(O, miembro_subord(GV, O), Oraciones),
-    list_to_set(Oraciones, Unicas),
-    maplist(hojas, Unicas, Lista).
-
-miembro_subord(gv(L), O) :- member(subord(_, O), L).
+simples(30, [[las,aplicaciones,de,la,ia,se,estan,disparando,en,diversas,industrias,incluidas,la,atencion,medica,las,finanzas,la,educacion,la,seguridad,la,manufactura,y,mas]]).

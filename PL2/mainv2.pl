@@ -1,3 +1,6 @@
+/*HAY QUE AÑADIR SINTAXIS AL SINTATICO V2 PQ COMO CAMBIAS TIEMPO DE LOS GERUNDIOS,
+NO LAS RECONOCE*/
+
 % main.pl
 % Punto de entrada del sistema. Carga todos los modulos y expone los
 % predicados de alto nivel para analizar oraciones del corpus.
